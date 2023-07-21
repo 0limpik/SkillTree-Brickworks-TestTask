@@ -48,7 +48,6 @@ namespace Assets.Scripts.UI
         [ContextMenu(nameof(CreateTree))]
         public void CreateTree()
         {
-
             foreach (var treeConfig in treeConfigs)
             {
                 skillCost.AddTree(treeConfig);
