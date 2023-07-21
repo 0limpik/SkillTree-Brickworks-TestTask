@@ -11,19 +11,20 @@ namespace Assets.Scripts.Services
     {
         public Action<SkillConfig> SkillChanged;
 
+        private readonly HashSet<SkillTree> trees = new();
+
         private readonly HashSet<SkillConfig> learnedSkills = new();
         private readonly HashSet<SkillConfig> rootSkills = new();
 
-        private readonly SkillTree tree;
-
-        public SkillLearnService(SkillTree tree)
+        public void AddTree(SkillTree tree)
         {
-            this.tree = tree;
-        }
+            trees.Add(tree);
 
-        public void AddRootSkill(IEnumerable<SkillConfig> rootSkill)
-        {
-            rootSkills.AddRange(rootSkill);
+            var rootSkills = tree.Nodes
+                .Where(x => x.Necessary.Count() == 0)
+                .Select(x => x.Config);
+
+            this.rootSkills.AddRange(rootSkills);
         }
 
         public bool CanLearn(SkillConfig config)
@@ -38,7 +39,7 @@ namespace Assets.Scripts.Services
                 return false;
             }
 
-            var node = tree.GetNode(config);
+            var node = GetNode(config);
 
             if (node.Necessary.Any(IsLearn))
             {
@@ -86,7 +87,7 @@ namespace Assets.Scripts.Services
                 return false;
             }
 
-            var node = tree.GetNode(config);
+            var node = GetNode(config);
 
             if (node.Available.Any(IsLearn))
             {
@@ -105,6 +106,21 @@ namespace Assets.Scripts.Services
 
             learnedSkills.Remove(config);
             SkillChanged?.Invoke(config);
+        }
+
+        private ISkillNode GetNode(SkillConfig config)
+        {
+            foreach (var tree in trees)
+            {
+                var node = tree.GetNode(config);
+
+                if (node != null)
+                {
+                    return node;
+                }
+            }
+
+            throw new ArgumentException(nameof(config));
         }
     }
 }

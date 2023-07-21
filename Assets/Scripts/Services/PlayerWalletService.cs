@@ -4,18 +4,18 @@ using Assets.Scripts.Model;
 
 namespace Assets.Scripts.Services
 {
-    internal class PlayerWallet
+    internal class PlayerWalletService
     {
         public event Action<int> OnChange
         {
             add => onChange.OnChange += value;
             remove => onChange.OnChange -= value;
         }
-        private SelfInvokeEvent<int> onChange;
+        private readonly SelfInvokeEvent<int> onChange;
 
         private int points;
 
-        public PlayerWallet(int points)
+        public PlayerWalletService(int points)
         {
             this.points = points;
             onChange = new(() => this.points);
@@ -27,16 +27,22 @@ namespace Assets.Scripts.Services
             onChange.Invoke();
         }
 
-        public bool CanLearn(SkillNodeConfig config) => points - config.Cost >= 0;
+        public bool CanTake(SkillNodeConfig nodeConfig) => points - nodeConfig.Cost >= 0;
 
-        public void Learn(SkillNodeConfig config)
+        public void Take(SkillNodeConfig nodeConfig)
         {
-            if (!CanLearn(config))
+            if (!CanTake(nodeConfig))
             {
                 throw new InvalidOperationException();
             }
 
-            points -= config.Cost;
+            points -= nodeConfig.Cost;
+            onChange.Invoke();
+        }
+
+        public void Receive(SkillNodeConfig nodeConfig)
+        {
+            points += nodeConfig.Cost;
             onChange.Invoke();
         }
     }

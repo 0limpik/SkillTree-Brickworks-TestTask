@@ -1,53 +1,50 @@
 ﻿using Assets.Scripts.Configuration;
 using Assets.Scripts.Model;
 using Assets.Scripts.Services;
-using Assets.Scripts.UI;
 using UnityEngine;
 
-namespace Assets.Scripts.View
+namespace Assets.Scripts.UI
 {
     [RequireComponent(typeof(SkillNodesUI))]
     [RequireComponent(typeof(SkillLinksUI))]
     internal class SkillTreeUI : MonoBehaviour
     {
-        [SerializeField] private SkinLearnUI learnUI;
+        [Header("Links")]
+        [SerializeField] private SkinLearnUI learn;
+
+        [Header("Setup")]
+        [SerializeField] private SkillTreeConfig treeConfig;
+
         private SkillNodesUI nodes;
         private SkillLinksUI links;
 
-        [SerializeField] private SkillTreeConfig treeConfig;
-
-        private SkillSelectorView skillSelector = new();
+        private SkillSelector skillSelector = new();
+        private SkillCostService skillCost = new();
 
         void Awake()
         {
             nodes = this.GetComponent<SkillNodesUI>();
             links = this.GetComponent<SkillLinksUI>();
 
-            Construct();
+            nodes.Construct(skillSelector);
+            learn.Construct(skillCost, skillSelector);
         }
 
         void Start() => CreateTree();
-        void OnDestroy() => ClearTree();
 
-        public void Construct()
-        {
-            nodes.Construct(skillSelector);
-        }
+        void OnEnable() => learn.Subscribe();
+        void OnDisable() => learn.Unscribe();
+
+        void OnDestroy() => ClearTree();
 
         [ContextMenu(nameof(CreateTree))]
         public void CreateTree()
         {
-            var tree = new SkillTree();
-            tree.Fill(treeConfig);
-            var cost = new SkillCostService();
-            cost.AddTree(treeConfig);
-
-            var skillCost = new SkillCostService();
             skillCost.AddTree(treeConfig);
 
-            learnUI.Set(tree, skillCost, skillSelector);
-
-            skillSelector.OnSelect += SelectNode;
+            var tree = new SkillTree();
+            tree.AddTree(treeConfig);
+            learn.AddTree(tree);
 
             var nodes = this.nodes.CreateNodes(tree.Nodes);
             links.CreateLinks(nodes);
@@ -59,7 +56,5 @@ namespace Assets.Scripts.View
             nodes.Clear();
             links.Clear();
         }
-
-        private void SelectNode(SkillNodeUI node) => learnUI.Select(node.Config);
     }
 }

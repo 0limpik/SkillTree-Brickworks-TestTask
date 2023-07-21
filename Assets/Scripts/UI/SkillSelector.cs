@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Assets.Scripts.View
+namespace Assets.Scripts.UI
 {
-    internal class SkillSelectorView
+    internal class SkillSelector
     {
         public event Action<SkillNodeUI> OnSelect;
         public SkillNodeUI Selected { get; private set; }

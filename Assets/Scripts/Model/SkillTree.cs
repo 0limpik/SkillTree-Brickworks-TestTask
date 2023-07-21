@@ -11,7 +11,7 @@ namespace Assets.Scripts.Model
 
         private readonly Dictionary<SkillNodeConfig, SkillNode> nodes = new();
 
-        public void Fill(SkillTreeConfig treeConfig)
+        public void AddTree(SkillTreeConfig treeConfig)
         {
             nodes.Clear();
 
@@ -38,7 +38,7 @@ namespace Assets.Scripts.Model
         }
 
         public ISkillNode GetNode(SkillConfig config) => nodes.Values
-            .First(x => x.Config == config);
+            .FirstOrDefault(x => x.Config == config);
 
         public IEnumerable<ISkillNode> GetRoots() => nodes
             .Where(x => x.Value.nethessary.Count() == 0)

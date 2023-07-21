@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.Scripts.View
+namespace Assets.Scripts.UI
 {
     [RequireComponent(typeof(CanvasRenderer))]
     internal class SkillLinkUI : MaskableGraphic

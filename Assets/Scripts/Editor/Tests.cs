@@ -18,7 +18,7 @@ namespace Assets.Scripts.Editor
             }
 
             var skillTree = new SkillTree();
-            skillTree.Fill(config);
+            skillTree.AddTree(config);
 
             foreach (var root in skillTree.GetRoots())
             {

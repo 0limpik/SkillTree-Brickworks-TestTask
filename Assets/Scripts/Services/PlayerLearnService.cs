@@ -5,17 +5,17 @@ namespace Assets.Scripts.Services
 {
     internal class PlayerLearnService
     {
-        public event Action OnLearnStateChange;
+        public event Action OnSkillChange;
 
-        private readonly PlayerWallet wallet;
+        private readonly PlayerWalletService wallet;
         private readonly SkillLearnService learnService;
-        private readonly SkillCostService skillCostService;
+        private readonly SkillCostService skillCost;
 
-        public PlayerLearnService(PlayerWallet wallet, SkillLearnService learnService, SkillCostService skillCostService)
+        public PlayerLearnService(PlayerWalletService wallet, SkillLearnService learnService, SkillCostService skillCost)
         {
             this.wallet = wallet;
             this.learnService = learnService;
-            this.skillCostService = skillCostService;
+            this.skillCost = skillCost;
         }
 
         public void Subscribe()
@@ -32,30 +32,40 @@ namespace Assets.Scripts.Services
 
         public bool CanLearn(SkillConfig config)
         {
-            var nodeConfig = skillCostService.GetTreeConfig(config);
+            var nodeConfig = skillCost.GetTreeConfig(config);
             return CanLearn(config, nodeConfig);
         }
 
         public void Learn(SkillConfig config)
         {
-            var nodeConfig = skillCostService.GetTreeConfig(config);
+            var nodeConfig = skillCost.GetTreeConfig(config);
             if (!CanLearn(config, nodeConfig))
             {
                 throw new InvalidOperationException();
             }
 
             learnService.Learn(config);
-            wallet.Learn(nodeConfig);
+            wallet.Take(nodeConfig);
         }
 
         public bool CanForget(SkillConfig config) => learnService.CanForget(config);
 
-        public void Forget(SkillConfig config) => learnService.Forget(config);
+        public void Forget(SkillConfig config)
+        {
+            if (!CanForget(config))
+            {
+                throw new InvalidOperationException();
+            }
+
+            learnService.Forget(config);
+            var nodeConfig = skillCost.GetTreeConfig(config);
+            wallet.Receive(nodeConfig);
+        }
 
         private bool CanLearn(SkillConfig config, SkillNodeConfig nodeConfig)
-            => wallet.CanLearn(nodeConfig) && learnService.CanLearn(config);
+            => wallet.CanTake(nodeConfig) && learnService.CanLearn(config);
 
-        private void SkillChange(SkillConfig config) => OnLearnStateChange?.Invoke();
-        private void PointsChange(int points) => OnLearnStateChange?.Invoke();
+        private void SkillChange(SkillConfig config) => OnSkillChange?.Invoke();
+        private void PointsChange(int points) => OnSkillChange?.Invoke();
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Model;
-using Assets.Scripts.View;
-using Assets.Scripts.View.Factoryes;
 using UnityEngine;
 
 namespace Assets.Scripts.UI
@@ -13,14 +11,14 @@ namespace Assets.Scripts.UI
         [SerializeField] private SkillNodeUI nodeTemplate;
 
         private SkillViewFactory<SkillNodeUI> factory;
-        private SkillSelectorView skillSelector;
+        private SkillSelector skillSelector;
 
         void Awake()
         {
             factory = new(nodeTemplate, nodesRoot);
         }
 
-        public void Construct(SkillSelectorView skillSelector)
+        public void Construct(SkillSelector skillSelector)
         {
             this.skillSelector = skillSelector;
         }

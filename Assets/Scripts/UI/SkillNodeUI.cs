@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.Scripts.View
+namespace Assets.Scripts.UI
 {
     internal class SkillNodeUI : MonoBehaviour
     {

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Model;
-using Assets.Scripts.View;
-using Assets.Scripts.View.Factoryes;
 using UnityEngine;
 
 namespace Assets.Scripts.UI
