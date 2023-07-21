@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Configuration;
+using Unity.VisualScripting;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 namespace Assets.Scripts.Model
@@ -13,8 +16,6 @@ namespace Assets.Scripts.Model
 
         public void AddTree(SkillTreeConfig treeConfig)
         {
-            nodes.Clear();
-
             foreach (var root in treeConfig.GetRoots())
             {
                 nodes.Add(root, new SkillNode(root.Config));
@@ -37,6 +38,47 @@ namespace Assets.Scripts.Model
             }
         }
 
+        public void RemoveTree(SkillTreeConfig treeConfig)
+        {
+            var nodesCount = nodes.Count() - treeConfig.Nodes.Count();
+            nodesCount = Math.Max(nodesCount, 0);
+
+            while (nodesCount < nodes.Count())
+            {
+                var leaves = GetLeaves()
+                    .Where(x => treeConfig.Contains(x.Config))
+                    .ToArray();
+
+                foreach (var leaf in leaves)
+                {
+                    var leafNodeConfig = treeConfig.GetNodeConfig(leaf.Config);
+                    Remove(leafNodeConfig);
+                }
+            }
+        }
+
+        private void Remove(SkillNodeConfig nodeConfig)
+        {
+            var node = nodes[nodeConfig];
+
+            if (node.Available.Count() != 0)
+            {
+                throw new InvalidOperationException();
+            }
+
+            foreach (var nethessary in node.nethessary)
+            {
+                nethessary.available.Remove(node);
+            }
+
+            if(Nodes.Any(x => x.Available.Contains(node)))
+            {
+                throw new InvalidOperationException();
+            }
+
+            nodes.Remove(nodeConfig);
+        }
+
         public ISkillNode GetNode(SkillConfig config) => nodes.Values
             .FirstOrDefault(x => x.Config == config);
 
@@ -51,20 +93,20 @@ namespace Assets.Scripts.Model
         private bool PassTree(SkillTreeConfig treeConfig)
         {
             var newNodes = new Dictionary<SkillNodeConfig, SkillNode>();
-            foreach (var (config, _) in nodes)
+            foreach (var (nodeConfig, _) in nodes)
             {
-                var available = treeConfig.GetAvailable(config.Config);
+                var available = treeConfig.GetAvailable(nodeConfig.Config);
                 PassNecessary(available, treeConfig, newNodes);
             }
 
-            foreach (var (config, node) in newNodes)
+            foreach (var (nodeConfig, node) in newNodes)
             {
-                nodes.Add(config, node);
+                nodes.Add(nodeConfig, node);
             }
 
-            foreach (var (config, node) in nodes)
+            foreach (var (nodeConfig, node) in nodes)
             {
-                var available = treeConfig.GetAvailable(config.Config);
+                var available = treeConfig.GetAvailable(nodeConfig.Config);
                 PassAvailable(available, node);
             }
 
@@ -75,20 +117,35 @@ namespace Assets.Scripts.Model
         {
             foreach (var availableCfg in available)
             {
-                if (nodes.ContainsKey(availableCfg) || newNodes.ContainsKey(availableCfg))
+                SkillNode node;
+
+                if(!nodes.TryGetValue(availableCfg, out node))
                 {
-                    continue;
+                    newNodes.TryGetValue(availableCfg, out node);
                 }
 
-                var necessary = treeConfig.GetNecessary(availableCfg.Config).ToArray();
+                var fromTree = treeConfig.GetNecessary(availableCfg.Config);
+                var fromNodes = nodes
+                    .Where(x => x.Value.available.Any(y => y.Config == availableCfg.Config))
+                    .Select(x => x.Key);
+
+                var necessary = Array.Empty<SkillNodeConfig>()
+                    .Concat(fromTree)
+                    .Concat(fromNodes)
+                    .ToList();
+
                 if (necessary.Any(x => !nodes.ContainsKey(x)))
                 {
                     continue;
                 }
 
-                var node = new SkillNode(availableCfg.Config);
+                if (!nodes.ContainsKey(availableCfg) && !newNodes.ContainsKey(availableCfg))
+                {
+                    node ??= new SkillNode(availableCfg.Config);
+                    newNodes.Add(availableCfg, node);
+                }
+
                 node.nethessary.AddRange(necessary.Select(x => nodes[x]));
-                newNodes.Add(availableCfg, node);
             }
         }
 

@@ -15,6 +15,14 @@ namespace Assets.Scripts.Services
             }
         }
 
+        public void RemoveTree(SkillTreeConfig treeConfig)
+        {
+            foreach (var node in treeConfig.Nodes)
+            {
+                nodes.Remove(node.Config);
+            }
+        }
+
         public SkillNodeConfig GetTreeConfig(SkillConfig config) => nodes[config];
     }
 }

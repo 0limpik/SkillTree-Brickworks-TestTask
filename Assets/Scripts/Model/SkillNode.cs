@@ -18,8 +18,8 @@ namespace Assets.Scripts.Model
         public IEnumerable<ISkillNode> Necessary => nethessary;
         public IEnumerable<ISkillNode> Available => available;
 
-        public readonly List<SkillNode> nethessary = new();
-        public readonly List<SkillNode> available = new();
+        public readonly HashSet<SkillNode> nethessary = new();
+        public readonly HashSet<SkillNode> available = new();
 
         public SkillNode(SkillConfig skill)
         {

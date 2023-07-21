@@ -19,12 +19,18 @@ namespace Assets.Scripts.Services
         public void AddTree(SkillTree tree)
         {
             trees.Add(tree);
+            var rootConfigs = GetRootConfigs(tree);
+            rootSkills.AddRange(rootConfigs);
+        }
 
-            var rootSkills = tree.Nodes
-                .Where(x => x.Necessary.Count() == 0)
-                .Select(x => x.Config);
-
-            this.rootSkills.AddRange(rootSkills);
+        public void RemoveTree(SkillTree tree)
+        {
+            trees.Remove(tree);
+            var roots = GetRootConfigs(tree).ToArray();
+            foreach (var config in roots)
+            {
+                rootSkills.Remove(config);
+            }
         }
 
         public bool CanLearn(SkillConfig config)
@@ -122,5 +128,9 @@ namespace Assets.Scripts.Services
 
             throw new ArgumentException(nameof(config));
         }
+
+        private IEnumerable<SkillConfig> GetRootConfigs(SkillTree tree) => tree.Nodes
+            .Where(x => x.Necessary.Count() == 0)
+            .Select(x => x.Config);
     }
 }

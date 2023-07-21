@@ -12,7 +12,7 @@ namespace Assets.Scripts.UI
 
         private SkillViewFactory<SkillLinkUI> factory;
 
-        void Awake()
+        public void Consturct()
         {
             factory = new(linkTemplate, linksRoot);
         }
@@ -33,6 +33,7 @@ namespace Assets.Scripts.UI
                     var link = factory.Create();
                     link.Set(skill.RectTransform, avalibleSkill.RectTransform);
                 }
+
             }
         }
 

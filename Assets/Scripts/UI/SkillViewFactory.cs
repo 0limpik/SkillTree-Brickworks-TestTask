@@ -8,9 +8,9 @@ namespace Assets.Scripts.UI
     {
         public IEnumerable<T> Items => items;
 
-        private T template;
-        private Transform root;
-        private HashSet<T> items = new();
+        private readonly T template;
+        private readonly Transform root;
+        private readonly HashSet<T> items = new();
 
         public SkillViewFactory(T template, Transform root)
         {

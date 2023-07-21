@@ -13,14 +13,11 @@ namespace Assets.Scripts.UI
         private SkillViewFactory<SkillNodeUI> factory;
         private SkillSelector skillSelector;
 
-        void Awake()
-        {
-            factory = new(nodeTemplate, nodesRoot);
-        }
-
         public void Construct(SkillSelector skillSelector)
         {
             this.skillSelector = skillSelector;
+
+            factory = new(nodeTemplate, nodesRoot);
         }
 
         public Dictionary<ISkillNode, SkillNodeUI> CreateNodes(IEnumerable<ISkillNode> nodes)

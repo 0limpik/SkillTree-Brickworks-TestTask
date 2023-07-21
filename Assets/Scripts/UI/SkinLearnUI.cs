@@ -47,7 +47,7 @@ namespace Assets.Scripts.UI
 
         public void Unscribe()
         {
-            skillSelector.OnSelect -= Select;
+            skillSelector.OnSelect -= Select;   
             playerLearn.OnSkillChange -= UpdateButtons;
             playerLearn.Unscribe();
             skillInfo.Unscribe();
@@ -68,6 +68,7 @@ namespace Assets.Scripts.UI
         }
 
         public void AddTree(SkillTree tree) => skillLearn.AddTree(tree);
+        public void RemoveTree(SkillTree tree) => skillLearn.RemoveTree(tree);
 
         private void Select(SkillNodeUI nodeConfig)
         {

@@ -1,4 +1,6 @@
-﻿using Assets.Scripts.Configuration;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Assets.Scripts.Configuration;
 using Assets.Scripts.Model;
 using UnityEditor;
 using UnityEngine;
@@ -10,15 +12,21 @@ namespace Assets.Scripts.Editor
         [MenuItem("TestTask/FillTree")]
         static void FillTree()
         {
-            var config = Selection.activeObject as SkillTreeConfig;
+            var configs = Selection.objects.Cast<SkillTreeConfig>();
 
-            if (config == null)
+            if (configs == null)
             {
                 return;
             }
 
             var skillTree = new SkillTree();
-            skillTree.AddTree(config);
+
+            foreach (var config in configs)
+            {
+                skillTree.AddTree(config);
+            }
+
+            Debug.Log(string.Join("\n", skillTree.Nodes.Select(x => DebutSkill(x))));
 
             foreach (var root in skillTree.GetRoots())
             {
@@ -29,6 +37,12 @@ namespace Assets.Scripts.Editor
             {
                 Debug.Log($"Nesessary graph:\n{DebugSkill(root, false)}");
             }
+
+            static string DebutSkill(ISkillNode node)
+                => $"{node}{DebugSkills(node.Necessary, "Necessary")}{DebugSkills(node.Available, "Available")}";
+
+            static string DebugSkills(IEnumerable<ISkillNode> nodes, string name)
+                => nodes.Any() ? $"\n    {name}\n        {string.Join($"\n{new string(' ', 8)}", nodes)}" : "";
 
             static string DebugSkill(ISkillNode node, bool availableOrNesessary, int level = 1)
             {

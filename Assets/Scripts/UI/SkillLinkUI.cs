@@ -19,7 +19,7 @@ namespace Assets.Scripts.UI
         private Vector3 firstLastPostion;
         private Vector3 secondLastPostion;
 
-        private Vector3[] corners = new Vector3[4];
+        private readonly Vector3[] corners = new Vector3[4];
 
         public bool Is(RectTransform first, RectTransform second)
             => (First == first && Second == second) || (First == second && Second == first);

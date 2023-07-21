@@ -12,7 +12,10 @@ namespace Assets.Scripts.UI
 
         private void SelectNode(SkillNodeUI node)
         {
-            Selected?.Deselect();
+            if (Selected != null)
+            {
+                Selected.Deselect();
+            }
             Selected = node;
             OnSelect?.Invoke(node);
             Selected.Select();
