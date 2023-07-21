@@ -1,28 +1,37 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Assets.Scripts.Configuration;
+﻿using Assets.Scripts.Configuration;
 using Assets.Scripts.Model;
 using Assets.Scripts.Services;
+using Assets.Scripts.UI;
 using UnityEngine;
 
 namespace Assets.Scripts.View
 {
+    [RequireComponent(typeof(SkillNodesUI))]
+    [RequireComponent(typeof(SkillLinksUI))]
     internal class SkillTreeUI : MonoBehaviour
     {
-        [SerializeField] private Transform nodesRoot;
-        [SerializeField] private Transform linksRoot;
         [SerializeField] private SkinLearnUI learnUI;
+        private SkillNodesUI nodes;
+        private SkillLinksUI links;
 
         [SerializeField] private SkillTreeConfig treeConfig;
-        [SerializeField] private SkillNodeUI nodeTemplate;
-        [SerializeField] private SkillLinkUI linkTemplate;
 
-        private SkillViewFactory skillFactory = new ();
-        private SkillSelectorView skillSelector = new ();
+        private SkillSelectorView skillSelector = new();
 
         void Awake()
         {
-            CreateTree();
+            nodes = this.GetComponent<SkillNodesUI>();
+            links = this.GetComponent<SkillLinksUI>();
+
+            Construct();
+        }
+
+        void Start() => CreateTree();
+        void OnDestroy() => ClearTree();
+
+        public void Construct()
+        {
+            nodes.Construct(skillSelector);
         }
 
         [ContextMenu(nameof(CreateTree))]
@@ -38,109 +47,19 @@ namespace Assets.Scripts.View
 
             learnUI.Set(tree, skillCost, skillSelector);
 
-            skillFactory.Set(linkTemplate, linksRoot);
-            skillFactory.Set(nodeTemplate, nodesRoot);
-
             skillSelector.OnSelect += SelectNode;
 
-            var nodes = CreateNodes(tree.Nodes);
-            CreateLinks(nodes);
+            var nodes = this.nodes.CreateNodes(tree.Nodes);
+            links.CreateLinks(nodes);
         }
 
         [ContextMenu(nameof(ClearTree))]
         public void ClearTree()
         {
-            skillSelector.OnSelect -= SelectNode;
-
-            foreach (var node in skillFactory.Nodes)
-            {
-                skillSelector.Unregister(node);
-            }
-
-            skillFactory.ClearAllNodes();
-            skillFactory.ClearAllLinks();
+            nodes.Clear();
+            links.Clear();
         }
 
         private void SelectNode(SkillNodeUI node) => learnUI.Select(node.Config);
-
-        private Dictionary<ISkillNode, SkillNodeUI> CreateNodes(IEnumerable<ISkillNode> nodes)
-        {
-            var placer = new RadialPlacer((nodeTemplate.transform as RectTransform).rect.width);
-
-            if(skillFactory.Nodes.Count() > 0)
-            {
-                placer.Step();
-            }
-
-            var result = new Dictionary<ISkillNode, SkillNodeUI>();
-
-            foreach (var node in nodes)
-            {
-                var nodeView = skillFactory.Nodes.FirstOrDefault(x => x.Config == node.Config);
-                if (nodeView == null)
-                {
-                    nodeView = skillFactory.CreateNode();
-                    nodeView.RectTransform.anchoredPosition += placer.Step();
-                }
-
-                nodeView.Set(node.Config);
-                skillSelector.Register(nodeView);
-                result.Add(node, nodeView);
-            }
-
-            return result;
-        }
-
-        private void CreateLinks(Dictionary<ISkillNode, SkillNodeUI> skills)
-        {
-            foreach (var node in skills.Keys)
-            {
-                var skill = skills[node];
-                foreach (var avalible in node.Available)
-                {
-                    var avalibleSkill = skills[avalible];
-                    if (skillFactory.Links.Any(x => x.Is(skill.RectTransform, avalibleSkill.RectTransform)))
-                    {
-                        continue;
-                    }
-
-                    var link = skillFactory.CreateLink();
-                    link.Set(skill.RectTransform, avalibleSkill.RectTransform);
-                }
-            }
-        }
-
-        private struct RadialPlacer
-        {
-            private readonly float objectWidth;
-            private float degreeValue;
-
-            public RadialPlacer(float objectWidth)
-            {
-                this.objectWidth = objectWidth;
-                degreeValue = 0;
-            }
-
-            public Vector2 Step()
-            {
-                var radiusPoint = (int)(degreeValue / 360f);
-
-                if (radiusPoint == 0)
-                {
-                    degreeValue += 360f;
-                    return Vector2.zero;
-                }
-
-                var radius = radiusPoint * objectWidth + objectWidth * 0.5f;
-                var cos = Mathf.Cos(objectWidth / radius) * Mathf.Rad2Deg;
-                var remainder = degreeValue % 360f;
-                var steps = remainder / cos;
-                //Debug.Log($"cos:{cos} objectWidth:{objectWidth} raidus:{radius} value:{degreeValue} steps{steps}");
-                var quat = Quaternion.AngleAxis(cos * steps, Vector3.back);
-                var result = quat * Vector2.up * radius;
-                degreeValue += cos;
-                return result;
-            }
-        }
     }
 }

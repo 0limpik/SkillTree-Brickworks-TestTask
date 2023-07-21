@@ -1227,6 +1227,8 @@ GameObject:
   m_Component:
   - component: {fileID: 659107381}
   - component: {fileID: 659107382}
+  - component: {fileID: 659107384}
+  - component: {fileID: 659107383}
   m_Layer: 5
   m_Name: SkillTree
   m_TagString: Untagged
@@ -1268,12 +1270,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eea1c4c571a7c36489008fb190a4af5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nodesRoot: {fileID: 490965908}
-  linksRoot: {fileID: 626740882}
   learnUI: {fileID: 656088038}
   treeConfig: {fileID: 11400000, guid: 4e23d3a8c57c5d24bb97df667f973466, type: 2}
-  nodeTemplate: {fileID: 6161243275016258985, guid: 5ee3d7980417bb94d96be03d59280f78, type: 3}
+--- !u!114 &659107383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 659107380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e822ee584ce339c47b7eff04dfbcd88f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  linksRoot: {fileID: 626740882}
   linkTemplate: {fileID: 3714823869717209580, guid: 0c1524f395be342458f5da6715a74e23, type: 3}
+--- !u!114 &659107384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 659107380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20ab47bf0efb24144b3acbd2cb5170f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nodesRoot: {fileID: 490965908}
+  nodeTemplate: {fileID: 6161243275016258985, guid: 5ee3d7980417bb94d96be03d59280f78, type: 3}
 --- !u!1001 &689499705
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2745,7 +2771,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6376350202508562136, guid: d149325a1a5067940911270e9717e4fa, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 772.5
       objectReference: {fileID: 0}
     - target: {fileID: 6376350202508562136, guid: d149325a1a5067940911270e9717e4fa, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -4207,7 +4233,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6376350202508562136, guid: d149325a1a5067940911270e9717e4fa, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 257.5
       objectReference: {fileID: 0}
     - target: {fileID: 6376350202508562136, guid: d149325a1a5067940911270e9717e4fa, type: 3}
       propertyPath: m_AnchoredPosition.y
