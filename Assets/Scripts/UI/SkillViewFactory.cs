@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -27,13 +28,22 @@ namespace Assets.Scripts.UI
             return item;
         }
 
-        public void Clear()
+        public void Remove(T item)
+        {
+            GameObject.DestroyImmediate(item.gameObject);
+            items.Remove(item);
+        }
+
+        public void Remove(Predicate<T> predicate)
         {
             foreach (var item in items)
             {
-                GameObject.DestroyImmediate(item.gameObject);
+                if (predicate(item))
+                {
+                    GameObject.DestroyImmediate(item.gameObject);
+                }
             }
-            items.Clear();
+            items.RemoveWhere(predicate);
         }
 
         private static T Create(T template, Transform parent)

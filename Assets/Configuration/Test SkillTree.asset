@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Nodes>k__BackingField:
   - <Config>k__BackingField: {fileID: 11400000, guid: c1de66f6c21cdf54fa2bfc727affbf34, type: 2}
-    <Cost>k__BackingField: 99
+    <Cost>k__BackingField: 1
     necessaryToLearn:
     - {fileID: 11400000, guid: 93c729b1d875b0442a254386a8eca4fc, type: 2}
     - {fileID: 11400000, guid: 73cf5170c41fd35468254b95662c7101, type: 2}

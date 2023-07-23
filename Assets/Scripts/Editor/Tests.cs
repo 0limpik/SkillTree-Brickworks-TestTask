@@ -2,14 +2,15 @@
 using System.Linq;
 using Assets.Scripts.Configuration;
 using Assets.Scripts.Model;
+using Assets.Scripts.UI;
 using UnityEditor;
 using UnityEngine;
 
-namespace Assets.Scripts.Editor
+namespace Assets.Scripts
 {
     internal class Tests
     {
-        [MenuItem("TestTask/FillTree")]
+        [MenuItem("TestTask/Tests/FillTree")]
         static void FillTree()
         {
             var configs = Selection.objects.Cast<SkillTreeConfig>();
@@ -56,5 +57,16 @@ namespace Assets.Scripts.Editor
                 return text;
             }
         }
+
+        [MenuItem("TestTask/Tests/Placer")]
+        static void TestPlacer()
+        {
+            var placer = new SkillNodesUI.RadialPlacer(100);
+            for (int i = 0; i < 5; i++)
+            {
+                Debug.Log($"{placer.StepNext()}");
+            }
+        }
+
     }
 }

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Configuration;
 using Unity.VisualScripting;
-using Unity.VisualScripting.FullSerializer;
-using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
@@ -14,8 +12,27 @@ namespace Assets.Scripts.Model
 
         private readonly Dictionary<SkillNodeConfig, SkillNode> nodes = new();
 
+        public IEnumerable<SkillConfig> CanAddTree(SkillTreeConfig treeConfig)
+        {
+            foreach (var nethessary in treeConfig.Nodes
+                .SelectMany(x => x.Necessary)
+                .Except(treeConfig.Nodes.Select(x => x.Config))
+                .Distinct())
+            {
+                if (!nodes.Keys.Any(x => x.Config == nethessary))
+                {
+                    yield return nethessary;
+                }
+            }
+        }
+
         public void AddTree(SkillTreeConfig treeConfig)
         {
+            if (CanAddTree(treeConfig).Any())
+            {
+                throw new InvalidOperationException();
+            }
+
             foreach (var root in treeConfig.GetRoots())
             {
                 nodes.Add(root, new SkillNode(root.Config));
@@ -33,13 +50,33 @@ namespace Assets.Scripts.Model
             {
                 foreach (var node in treeConfig.Nodes.Where(x => !nodes.Keys.Contains(x)))
                 {
-                    Debug.LogError($"{node.Config.Name} can't be added", node.Config);
+                    throw new InvalidOperationException($"{node} can't be added");
                 }
             }
         }
 
-        public void RemoveTree(SkillTreeConfig treeConfig)
+        public IEnumerable<(SkillConfig config, IEnumerable<SkillConfig> dependents)> CanRemoveTree(SkillTreeConfig treeConfig)
         {
+            foreach (var avalible in treeConfig.Nodes
+                 .SelectMany(x => nodes[x].Available)
+                 .Except(treeConfig.Nodes.Select(x => nodes[x]))
+                 .Distinct())
+            {
+                if (nodes.Keys.Any(x => x.Config == avalible.Config))
+                {
+                    yield return (avalible.Config,
+                        avalible.Necessary.Select(x => x.Config).Intersect(treeConfig.Nodes.Select(x => x.Config)));
+                }
+            }
+        }
+
+        public IEnumerable<ISkillNode> RemoveTree(SkillTreeConfig treeConfig)
+        {
+            if (CanRemoveTree(treeConfig).Any())
+            {
+                throw new InvalidOperationException();
+            }
+
             var nodesCount = nodes.Count() - treeConfig.Nodes.Count();
             nodesCount = Math.Max(nodesCount, 0);
 
@@ -49,34 +86,18 @@ namespace Assets.Scripts.Model
                     .Where(x => treeConfig.Contains(x.Config))
                     .ToArray();
 
+                if (!leaves.Any())
+                {
+                    throw new InvalidOperationException();
+                }
+
                 foreach (var leaf in leaves)
                 {
                     var leafNodeConfig = treeConfig.GetNodeConfig(leaf.Config);
                     Remove(leafNodeConfig);
+                    yield return leaf;
                 }
             }
-        }
-
-        private void Remove(SkillNodeConfig nodeConfig)
-        {
-            var node = nodes[nodeConfig];
-
-            if (node.Available.Count() != 0)
-            {
-                throw new InvalidOperationException();
-            }
-
-            foreach (var nethessary in node.nethessary)
-            {
-                nethessary.available.Remove(node);
-            }
-
-            if(Nodes.Any(x => x.Available.Contains(node)))
-            {
-                throw new InvalidOperationException();
-            }
-
-            nodes.Remove(nodeConfig);
         }
 
         public ISkillNode GetNode(SkillConfig config) => nodes.Values
@@ -119,7 +140,7 @@ namespace Assets.Scripts.Model
             {
                 SkillNode node;
 
-                if(!nodes.TryGetValue(availableCfg, out node))
+                if (!nodes.TryGetValue(availableCfg, out node))
                 {
                     newNodes.TryGetValue(availableCfg, out node);
                 }
@@ -168,6 +189,28 @@ namespace Assets.Scripts.Model
                     node.available.Add(avalibleSkill);
                 }
             }
+        }
+
+        private void Remove(SkillNodeConfig nodeConfig)
+        {
+            var node = nodes[nodeConfig];
+
+            if (node.Available.Count() != 0)
+            {
+                throw new InvalidOperationException();
+            }
+
+            foreach (var nethessary in node.nethessary)
+            {
+                nethessary.available.Remove(node);
+            }
+
+            if (Nodes.Any(x => x.Available.Contains(node)))
+            {
+                throw new InvalidOperationException();
+            }
+
+            nodes.Remove(nodeConfig);
         }
     }
 }

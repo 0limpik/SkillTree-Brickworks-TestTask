@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Configuration;
 using Assets.Scripts.Model;
 using Assets.Scripts.Services;
@@ -6,7 +7,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.UI
 {
-    internal class SkillTreeUI : MonoBehaviour
+    public class SkillTreeUI : MonoBehaviour
     {
         [Header("Links")]
         [SerializeField] private SkinLearnUI learn;
@@ -15,18 +16,22 @@ namespace Assets.Scripts.UI
         [SerializeField] private SkillLinksUI links;
 
         [Header("Setup")]
-        [SerializeField] private SkillTreeConfig[] treeConfigs;
+        [SerializeField] public List<SkillTreeConfig> treeConfigs;
 
+        public readonly SkillTree tree = new();
         private readonly SkillSelector skillSelector = new();
         private readonly SkillCostService skillCost = new();
-        private readonly SkillTree tree = new();
 
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
-        static void Reconstruct() => GameObject
-            .FindObjectsOfType<SkillTreeUI>()
-            .ToList()
-            .ForEach(x => x.Construct());
+        static void Reconstruct()
+        {
+            foreach (var treeUI in GameObject.FindObjectsOfType<SkillTreeUI>())
+            {
+                treeUI.Construct();
+                treeUI.Start();
+            }
+        }
 #endif
 
         private void Construct()
@@ -38,21 +43,31 @@ namespace Assets.Scripts.UI
 
         void Awake() => Construct();
 
-        void Start() => CreateTree();
+        void Start()
+        {
+            foreach (var config in treeConfigs)
+            {
+                CreateTree(config);
+            }
+        }
 
         void OnEnable() => learn.Subscribe();
         void OnDisable() => learn.Unscribe();
 
-        void OnDestroy() => ClearTree();
-
-        [ContextMenu(nameof(CreateTree))]
-        public void CreateTree()
+        void OnDestroy()
         {
-            foreach (var treeConfig in treeConfigs)
+            foreach (var config in treeConfigs
+                .AsEnumerable()
+                .Reverse())
             {
-                skillCost.AddTree(treeConfig);
-                tree.AddTree(treeConfig);
+                ClearTree(config);
             }
+        }
+
+        public void CreateTree(SkillTreeConfig treeConfig)
+        {
+            tree.AddTree(treeConfig);
+            skillCost.AddTree(treeConfig);
 
             learn.AddTree(tree);
 
@@ -60,22 +75,14 @@ namespace Assets.Scripts.UI
             links.CreateLinks(nodes);
         }
 
-        [ContextMenu(nameof(ClearTree))]
-        public void ClearTree()
+        public void ClearTree(SkillTreeConfig treeConfig)
         {
-            links.Clear();
-            nodes.Clear();
-
-
+            var removedNodes = tree.RemoveTree(treeConfig).ToList();
+            skillCost.RemoveTree(treeConfig);
             learn.RemoveTree(tree);
 
-            foreach (var treeConfig in treeConfigs
-                .AsEnumerable()
-                .Reverse())
-            {
-                tree.RemoveTree(treeConfig);
-                skillCost.RemoveTree(treeConfig);
-            }
+            nodes.ClearNodes(removedNodes);
+            links.RemoveLinks(removedNodes);
         }
     }
 }

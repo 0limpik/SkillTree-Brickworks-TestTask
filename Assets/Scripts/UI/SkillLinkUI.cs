@@ -11,8 +11,8 @@ namespace Assets.Scripts.UI
         private static readonly Vector2 uv2 = new(1, 1);
         private static readonly Vector2 uv3 = new(1, 0);
 
-        [field: SerializeField] public RectTransform First { get; private set; }
-        [field: SerializeField] public RectTransform Second { get; private set; }
+        [field: SerializeField] public SkillNodeUI First { get; private set; }
+        [field: SerializeField] public SkillNodeUI Second { get; private set; }
 
         [SerializeField] private float thickness = 100f;
 
@@ -21,10 +21,10 @@ namespace Assets.Scripts.UI
 
         private readonly Vector3[] corners = new Vector3[4];
 
-        public bool Is(RectTransform first, RectTransform second)
+        public bool Is(SkillNodeUI first, SkillNodeUI second)
             => (First == first && Second == second) || (First == second && Second == first);
 
-        public void Set(RectTransform first, RectTransform second)
+        public void Set(SkillNodeUI first, SkillNodeUI second)
         {
             First = first;
             Second = second;
@@ -34,8 +34,8 @@ namespace Assets.Scripts.UI
 
         void Update()
         {
-            if (First != null && First.position != firstLastPostion
-             || Second != null && Second.position != secondLastPostion)
+            if (First != null && First.RectTransform.position != firstLastPostion
+             || Second != null && Second.RectTransform.position != secondLastPostion)
             {
                 Redraw();
             }
@@ -44,8 +44,8 @@ namespace Assets.Scripts.UI
         private void Redraw()
         {
             this.SetVerticesDirty();
-            firstLastPostion = First.position;
-            secondLastPostion = Second.position;
+            firstLastPostion = First.RectTransform.position;
+            secondLastPostion = Second.RectTransform.position;
         }
 
         protected override void OnPopulateMesh(VertexHelper vh)
@@ -57,8 +57,8 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            Vector3 first = First.anchoredPosition;
-            Vector3 second = Second.anchoredPosition;
+            Vector3 first = First.RectTransform.anchoredPosition;
+            Vector3 second = Second.RectTransform.anchoredPosition;
 
             var thicknessVector = (second - first).normalized * thickness;
 

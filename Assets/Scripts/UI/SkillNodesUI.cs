@@ -1,34 +1,30 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Model;
 using UnityEngine;
 
 namespace Assets.Scripts.UI
 {
-    internal class SkillNodesUI : MonoBehaviour
+    public class SkillNodesUI : MonoBehaviour
     {
         [SerializeField] private Transform nodesRoot;
         [SerializeField] private SkillNodeUI nodeTemplate;
 
         private SkillViewFactory<SkillNodeUI> factory;
         private SkillSelector skillSelector;
+        private RadialPlacer placer;
 
-        public void Construct(SkillSelector skillSelector)
+        internal void Construct(SkillSelector skillSelector)
         {
             this.skillSelector = skillSelector;
 
             factory = new(nodeTemplate, nodesRoot);
+            placer = new RadialPlacer((nodeTemplate.transform as RectTransform).rect.width);
         }
 
-        public Dictionary<ISkillNode, SkillNodeUI> CreateNodes(IEnumerable<ISkillNode> nodes)
+        internal Dictionary<ISkillNode, SkillNodeUI> CreateNodes(IEnumerable<ISkillNode> nodes)
         {
-            var placer = new RadialPlacer((nodeTemplate.transform as RectTransform).rect.width);
-
-            if (factory.Items.Count() > 0)
-            {
-                placer.Step();
-            }
-
             var result = new Dictionary<ISkillNode, SkillNodeUI>();
 
             foreach (var node in nodes)
@@ -37,7 +33,7 @@ namespace Assets.Scripts.UI
                 if (nodeView == null)
                 {
                     nodeView = factory.Create();
-                    nodeView.RectTransform.anchoredPosition += placer.Step();
+                    nodeView.RectTransform.anchoredPosition += placer.StepNext();
                 }
 
                 nodeView.Set(node.Config);
@@ -48,46 +44,64 @@ namespace Assets.Scripts.UI
             return result;
         }
 
-        public void Clear()
+        public void ClearNodes(IEnumerable<ISkillNode> nodes)
         {
-            foreach (var node in factory.Items)
+            foreach (var node in nodes)
             {
-                skillSelector.Unregister(node);
-            }
+                placer.StepBack();
 
-            factory.Clear();
+                var nodeUI = factory.Items.First(x => x.Config == node.Config);
+                skillSelector.Unregister(nodeUI);
+                factory.Remove(nodeUI);
+            }
         }
 
-        private struct RadialPlacer
+        public class RadialPlacer
         {
             private readonly float objectWidth;
             private float degreeValue;
 
+            private int CurrentCircle => (int)(degreeValue / 360f);
+
             public RadialPlacer(float objectWidth)
             {
                 this.objectWidth = objectWidth;
-                degreeValue = 0;
             }
 
-            public Vector2 Step()
+            public Vector2 StepNext()
             {
-                var radiusPoint = (int)(degreeValue / 360f);
-
-                if (radiusPoint == 0)
+                if (CurrentCircle == 0)
                 {
                     degreeValue += 360f;
                     return Vector2.zero;
                 }
 
-                var radius = radiusPoint * objectWidth + objectWidth * 0.5f;
-                var cos = Mathf.Cos(objectWidth / radius) * Mathf.Rad2Deg;
-                var remainder = degreeValue % 360f;
-                var steps = remainder / cos;
-                //Debug.Log($"cos:{cos} objectWidth:{objectWidth} raidus:{radius} value:{degreeValue} steps{steps}");
-                var quat = Quaternion.AngleAxis(cos * steps, Vector3.back);
-                var result = quat * Vector2.up * radius;
+                var (result, cos) = Step();
                 degreeValue += cos;
                 return result;
+            }
+
+            public Vector2 StepBack()
+            {
+                if(CurrentCircle == 0)
+                {
+                    degreeValue = 0;
+                    return Vector2.zero;
+                }
+
+                var (result, cos) = Step();
+                degreeValue -= cos;
+                return result;
+            }
+
+            private (Vector2 result, float cos) Step()
+            {
+                var radius = CurrentCircle * objectWidth + objectWidth * 0.5f;
+                var cos = Mathf.Tan(objectWidth / radius) * Mathf.Rad2Deg;
+                var step = degreeValue % 360f / cos;
+                var quat = Quaternion.AngleAxis(cos * step, Vector3.back);
+                var result = quat * Vector2.up * radius;
+                return (result, cos);
             }
         }
     }

@@ -25,18 +25,23 @@ namespace Assets.Scripts.UI
                 foreach (var avalible in node.Available)
                 {
                     var avalibleSkill = skills[avalible];
-                    if (factory.Items.Any(x => x.Is(skill.RectTransform, avalibleSkill.RectTransform)))
+                    if (factory.Items.Any(x => x.Is(skill, avalibleSkill)))
                     {
                         continue;
                     }
 
                     var link = factory.Create();
-                    link.Set(skill.RectTransform, avalibleSkill.RectTransform);
+                    link.Set(skill, avalibleSkill);
                 }
-
             }
         }
 
-        public void Clear() => factory.Clear();
+        public void RemoveLinks(IEnumerable<ISkillNode> nodes)
+        {
+            foreach (var node in nodes)
+            {
+                factory.Remove(x => x.First.Config == node.Config || x.Second.Config == node.Config);
+            }
+        }
     }
 }
