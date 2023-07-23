@@ -18,7 +18,7 @@ namespace Assets.Scripts.UI
         [Header("Setup")]
         [SerializeField] public List<SkillTreeConfig> treeConfigs;
 
-        public readonly SkillTree tree = new();
+        public readonly SkillTreeContainer treeContainer = new();
         private readonly SkillSelector skillSelector = new();
         private readonly SkillCostService skillCost = new();
 
@@ -66,20 +66,20 @@ namespace Assets.Scripts.UI
 
         public void CreateTree(SkillTreeConfig treeConfig)
         {
-            tree.AddTree(treeConfig);
+            treeContainer.AddTree(treeConfig);
             skillCost.AddTree(treeConfig);
 
-            learn.AddTree(tree);
+            learn.AddTree(treeContainer.Tree);
 
-            var nodes = this.nodes.CreateNodes(tree.Nodes);
+            var nodes = this.nodes.CreateNodes(treeContainer.Tree.Nodes);
             links.CreateLinks(nodes);
         }
 
         public void ClearTree(SkillTreeConfig treeConfig)
         {
-            var removedNodes = tree.RemoveTree(treeConfig).ToList();
+            var removedNodes = treeContainer.RemoveTree(treeConfig).ToList();
             skillCost.RemoveTree(treeConfig);
-            learn.RemoveTree(tree);
+            learn.RemoveTree(treeContainer.Tree);
 
             nodes.ClearNodes(removedNodes);
             links.RemoveLinks(removedNodes);

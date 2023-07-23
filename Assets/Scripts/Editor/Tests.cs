@@ -20,12 +20,14 @@ namespace Assets.Scripts
                 return;
             }
 
-            var skillTree = new SkillTree();
+            var skillTreeContainer = new SkillTreeContainer();
 
             foreach (var config in configs)
             {
-                skillTree.AddTree(config);
+                skillTreeContainer.AddTree(config);
             }
+
+            var skillTree = skillTreeContainer.Tree;
 
             Debug.Log(string.Join("\n", skillTree.Nodes.Select(x => DebutSkill(x))));
 

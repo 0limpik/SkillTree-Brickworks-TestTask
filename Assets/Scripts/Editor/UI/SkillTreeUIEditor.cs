@@ -52,12 +52,12 @@ namespace Assets.Scripts.UI
 
         private void CreateTree()
         {
-            var missing = target.tree.CanAddTree(treeConfig).ToList();
+            var missing = target.treeContainer.CanAddTree(treeConfig).ToList();
 
             foreach (var config in missing)
             {
                 var available = treeConfig.GetAvailable(config).Select(x => x.Config);
-                Debug.Log($"{config} missing skill in tree requered by nodes: {string.Join(", ", available)}", config);
+                Debug.LogError($"{config} missing in tree requered by nodes: {string.Join(", ", available)}", config);
             }
 
             if (missing.Any())
@@ -72,11 +72,11 @@ namespace Assets.Scripts.UI
 
         private void ClearTree()
         {
-            var dependents = target.tree.CanRemoveTree(treeConfig).ToList();
+            var dependents = target.treeContainer.CanRemoveTree(treeConfig).ToList();
 
             foreach (var (config, dependent) in dependents)
             {
-                Debug.Log($"{config} dependent skill from tree nodes: {string.Join(", ", dependent)}", config);
+                Debug.LogError($"{config} dependent from tree nodes: {string.Join(", ", dependent)}", config);
             }
 
             if (dependents.Any())

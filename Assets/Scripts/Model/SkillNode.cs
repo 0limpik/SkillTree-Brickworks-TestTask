@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Configuration;
 
 namespace Assets.Scripts.Model
@@ -9,6 +10,9 @@ namespace Assets.Scripts.Model
 
         IEnumerable<ISkillNode> Available { get; }
         IEnumerable<ISkillNode> Necessary { get; }
+
+        IEnumerable<SkillConfig> NecessaryConfigs => Necessary.Select(x => x.Config);
+        IEnumerable<SkillConfig> AvailableConfigs => Available.Select(x => x.Config);
     }
 
     public class SkillNode : ISkillNode

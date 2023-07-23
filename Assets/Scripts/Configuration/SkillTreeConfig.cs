@@ -10,6 +10,8 @@ namespace Assets.Scripts.Configuration
     {
         [field: SerializeField] public SkillNodeConfig[] Nodes { get; private set; }
 
+        public IEnumerable<SkillConfig> Configs => Nodes.Select(x => x.Config);
+
         public SkillNodeConfig GetNodeConfig(SkillConfig config) => Nodes
             .FirstOrDefault(x => x.Config == config);
 
