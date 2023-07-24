@@ -11,6 +11,7 @@ namespace Assets.Scripts.UI
     {
         [Header("Links")]
         [SerializeField] private SkinLearnUI learn;
+        [SerializeField] private SkillLinksSelector linksSelector;
 
         [SerializeField] private SkillNodesUI nodes;
         [SerializeField] private SkillLinksUI links;
@@ -39,6 +40,7 @@ namespace Assets.Scripts.UI
             nodes.Construct(skillSelector);
             links.Consturct();
             learn.Construct(skillCost, skillSelector);
+            linksSelector.Consturct(links, skillSelector);
         }
 
         void Awake() => Construct();
@@ -51,8 +53,17 @@ namespace Assets.Scripts.UI
             }
         }
 
-        void OnEnable() => learn.Subscribe();
-        void OnDisable() => learn.Unscribe();
+        void OnEnable()
+        {
+            learn.Subscribe();
+            linksSelector.Subscribe();
+        }
+
+        void OnDisable()
+        {
+            learn.Unscribe();
+            linksSelector.Unscribe();
+        }
 
         void OnDestroy()
         {

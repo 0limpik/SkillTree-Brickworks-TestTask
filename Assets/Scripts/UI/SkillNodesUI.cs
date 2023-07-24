@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Assets.Scripts.Model;
 using UnityEngine;
 
@@ -32,9 +31,7 @@ namespace Assets.Scripts.UI
                 nodeUI.RectTransform.anchoredPosition += pos;
             }
 
-            var necessaryUI = factory.Items
-                .Where(x => node.NecessaryConfigs.Contains(x.Config));
-            nodeUI.Set(node.Config, necessaryUI);
+            nodeUI.Set(node.Config);
             skillSelector.Register(nodeUI);
             return nodeUI;
         }

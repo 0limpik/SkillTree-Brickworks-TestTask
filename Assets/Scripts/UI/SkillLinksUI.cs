@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Configuration;
 using Assets.Scripts.Model;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Assets.Scripts.UI
@@ -38,8 +38,11 @@ namespace Assets.Scripts.UI
 
         public void RemoveLink(ISkillNode node)
         {
-            factory.Remove(x => x.First.Config == node.Config || x.Second.Config == node.Config);
+            factory.Remove(x => x.Is(node.Config));
             nodes.Remove(node);
         }
+
+        public IEnumerable<SkillLinkUI> GetLinks(SkillConfig config)
+            => factory.Items.Where(x => x.Is(config));
     }
 }

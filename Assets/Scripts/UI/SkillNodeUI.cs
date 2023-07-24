@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using Assets.Scripts.Configuration;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,24 +15,32 @@ namespace Assets.Scripts.UI
         [SerializeField] private Button button;
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private Image selectImage;
+        [SerializeField] private Color learnedColor = Color.white;
 
-        private readonly HashSet<SkillNodeUI> necessary = new();
+        private Color defaultColor;
 
         public RectTransform RectTransform => this.transform as RectTransform;
 
-        void Awake() => Deselect();
-
-        public void Set(SkillConfig skill, IEnumerable<SkillNodeUI> necessary)
+        void Awake()
         {
-            Config = skill;
-            name = skill.Name;
-            nameText.text = skill.Name;
-            this.necessary.AddRange(necessary);
+            defaultColor = selectImage.color;
+
+            Deselect();
         }
 
         void OnEnable() => button.onClick.AddListener(OnClick);
         void OnDisable() => button.onClick.RemoveListener(OnClick);
         void OnDestroy() => OnNodeSelect = null;
+
+        public void Set(SkillConfig skill)
+        {
+            this.Config = skill;
+            this.name = skill.Name;
+            this.nameText.text = skill.Name;
+        }
+
+        public void Learn() => button.targetGraphic.color = learnedColor;
+        public void Forget() => button.targetGraphic.color = defaultColor;
 
         public void Select() => selectImage.enabled = true;
         public void Deselect() => selectImage.enabled = false;

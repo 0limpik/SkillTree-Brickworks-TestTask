@@ -55,21 +55,6 @@ namespace Assets.Scripts.Services
             return false;
         }
 
-        private bool IsLearn(ISkillNode node)
-        {
-            if (rootSkills.Contains(node.Config))
-            {
-                return true;
-            }
-
-            if (learnedSkills.Contains(node.Config))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
         public void Learn(SkillConfig config)
         {
             if (!CanLearn(config))
@@ -112,6 +97,21 @@ namespace Assets.Scripts.Services
 
             learnedSkills.Remove(config);
             SkillChanged?.Invoke(config);
+        }
+
+        private bool IsLearn(ISkillNode node)
+        {
+            if (rootSkills.Contains(node.Config))
+            {
+                return true;
+            }
+
+            if (learnedSkills.Contains(node.Config))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private ISkillNode GetNode(SkillConfig config)

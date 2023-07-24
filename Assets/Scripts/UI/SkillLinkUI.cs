@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Configuration;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Assets.Scripts.UI
@@ -11,8 +12,8 @@ namespace Assets.Scripts.UI
         private static readonly Vector2 uv2 = new(1, 1);
         private static readonly Vector2 uv3 = new(1, 0);
 
-        [field: SerializeField] public SkillNodeUI First { get; private set; }
-        [field: SerializeField] public SkillNodeUI Second { get; private set; }
+        [field: SerializeField] public SkillNodeUI Node { get; private set; }
+        [field: SerializeField] public SkillNodeUI Necessary { get; private set; }
 
         [SerializeField] private float thickness = 100f;
 
@@ -22,20 +23,24 @@ namespace Assets.Scripts.UI
         private readonly Vector3[] corners = new Vector3[4];
 
         public bool Is(SkillNodeUI first, SkillNodeUI second)
-            => (First == first && Second == second) || (First == second && Second == first);
+            => (Node == first && Necessary == second) || (Node == second && Necessary == first);
 
-        public void Set(SkillNodeUI first, SkillNodeUI second)
+        public bool Is(SkillConfig config)
+            => Node.Config == config || Necessary.Config == config;
+
+        public void Set(SkillNodeUI node, SkillNodeUI necessary)
         {
-            First = first;
-            Second = second;
+            this.Node = node;
+            this.Necessary = necessary;
+            this.name = $"{this.Node.name} - {Necessary.name}";
+
             Redraw();
-            this.name = $"{First.name} - {Second.name}";
         }
 
         void Update()
         {
-            if (First != null && First.RectTransform.position != firstLastPostion
-             || Second != null && Second.RectTransform.position != secondLastPostion)
+            if (Node != null && Node.RectTransform.position != firstLastPostion
+                || Necessary != null && Necessary.RectTransform.position != secondLastPostion)
             {
                 Redraw();
             }
@@ -44,21 +49,21 @@ namespace Assets.Scripts.UI
         private void Redraw()
         {
             this.SetVerticesDirty();
-            firstLastPostion = First.RectTransform.position;
-            secondLastPostion = Second.RectTransform.position;
+            firstLastPostion = Node.RectTransform.position;
+            secondLastPostion = Necessary.RectTransform.position;
         }
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear();
 
-            if (First == null || Second == null)
+            if (Node == null || Necessary == null)
             {
                 return;
             }
 
-            Vector3 first = First.RectTransform.anchoredPosition;
-            Vector3 second = Second.RectTransform.anchoredPosition;
+            Vector3 first = Node.RectTransform.anchoredPosition;
+            Vector3 second = Necessary.RectTransform.anchoredPosition;
 
             var thicknessVector = (second - first).normalized * thickness;
 

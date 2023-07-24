@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.Configuration;
-using Assets.Scripts.Model;
+﻿using Assets.Scripts.Model;
 using Assets.Scripts.Services;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,7 +23,7 @@ namespace Assets.Scripts.UI
         private PlayerLearnService playerLearn;
         private SkillSelector skillSelector;
 
-        private SkillConfig selectedConfig;
+        private SkillNodeUI selectedNode;
 
         public void Construct(SkillCostService skillCost, SkillSelector skillSelector)
         {
@@ -47,7 +46,7 @@ namespace Assets.Scripts.UI
 
         public void Unscribe()
         {
-            skillSelector.OnSelect -= Select;   
+            skillSelector.OnSelect -= Select;
             playerLearn.OnSkillChange -= UpdateButtons;
             playerLearn.Unscribe();
             skillInfo.Unscribe();
@@ -70,22 +69,32 @@ namespace Assets.Scripts.UI
         public void AddTree(SkillTree tree) => skillLearn.AddTree(tree);
         public void RemoveTree(SkillTree tree) => skillLearn.RemoveTree(tree);
 
-        private void Select(SkillNodeUI nodeConfig)
+        private void Select(SkillNodeUI selectedNode)
         {
-            selectedConfig = nodeConfig.Config;
+            this.selectedNode = selectedNode;
             UpdateButtons();
         }
 
         private void OnEarn() => playerWallet.Earn(earnPoints);
-        private void OnLearn() => playerLearn.Learn(selectedConfig);
-        private void OnForget() => playerLearn.Forget(selectedConfig);
+
+        private void OnLearn()
+        {
+            playerLearn.Learn(selectedNode.Config);
+            selectedNode.Learn();
+        }
+
+        private void OnForget()
+        {
+            playerLearn.Forget(selectedNode.Config);
+            selectedNode.Forget();
+        }
 
         private void UpdateButtons()
         {
-            var notSelected = selectedConfig != null;
+            var notSelected = selectedNode != null;
 
-            learn.interactable = notSelected && playerLearn.CanLearn(selectedConfig);
-            forget.interactable = notSelected && playerLearn.CanForget(selectedConfig);
+            learn.interactable = notSelected && playerLearn.CanLearn(selectedNode.Config);
+            forget.interactable = notSelected && playerLearn.CanForget(selectedNode.Config);
         }
     }
 }
