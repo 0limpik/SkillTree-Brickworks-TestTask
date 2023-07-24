@@ -13,6 +13,41 @@ namespace Assets.Scripts.Model
             Nodes = nodes;
         }
 
+        public IEnumerable<SkillConfig> CanAddTree(SkillTreeConfig treeConfig)
+        {
+            foreach (var config in treeConfig.Nodes
+                .SelectMany(x => x.Necessary)
+                .Distinct())
+            {
+                if (treeConfig.Contains(config))
+                {
+                    continue;
+                }
+
+                if (Contains(config))
+                {
+                    continue;
+                }
+
+                yield return config;
+            }
+        }
+
+        public IEnumerable<(SkillConfig config, IEnumerable<SkillConfig> dependents)> CanRemoveTree(SkillTreeConfig treeConfig)
+        {
+            foreach (var node in treeConfig.Nodes
+                .SelectMany(x => GetNode(x.Config).Available)
+                .Distinct())
+            {
+                if (treeConfig.Contains(node.Config))
+                {
+                    continue;
+                }
+
+                yield return (node.Config, node.NecessaryConfigs.Intersect(treeConfig.Configs));
+            }
+        }
+
         public bool Contains(SkillConfig config) => Nodes
             .Any(x => x.Config == config);
 

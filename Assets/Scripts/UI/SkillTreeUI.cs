@@ -16,7 +16,7 @@ namespace Assets.Scripts.UI
         [SerializeField] private SkillLinksUI links;
 
         [Header("Setup")]
-        [SerializeField] public List<SkillTreeConfig> treeConfigs;
+        [SerializeField, HideInInspector] public List<SkillTreeConfig> treeConfigs;
 
         public readonly SkillTreeContainer treeContainer = new();
         private readonly SkillSelector skillSelector = new();
@@ -66,13 +66,15 @@ namespace Assets.Scripts.UI
 
         public void CreateTree(SkillTreeConfig treeConfig)
         {
-            treeContainer.AddTree(treeConfig);
+            var nodes = treeContainer.AddTree(treeConfig);
             skillCost.AddTree(treeConfig);
-
             learn.AddTree(treeContainer.Tree);
 
-            var nodes = this.nodes.CreateNodes(treeContainer.Tree.Nodes);
-            links.CreateLinks(nodes);
+            foreach (var node in nodes)
+            {
+                var nodeUI = this.nodes.CreateNode(node);
+                links.CreateLink(node, nodeUI);
+            }
         }
 
         public void ClearTree(SkillTreeConfig treeConfig)
@@ -81,8 +83,11 @@ namespace Assets.Scripts.UI
             skillCost.RemoveTree(treeConfig);
             learn.RemoveTree(treeContainer.Tree);
 
-            nodes.ClearNodes(removedNodes);
-            links.RemoveLinks(removedNodes);
+            foreach(var node in removedNodes)
+            {
+                links.RemoveLink(node);
+                nodes.RemoveNode(node);
+            }
         }
     }
 }

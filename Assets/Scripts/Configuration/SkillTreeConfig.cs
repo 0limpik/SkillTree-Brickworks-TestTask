@@ -23,9 +23,14 @@ namespace Assets.Scripts.Configuration
 
         public IEnumerable<SkillNodeConfig> GetNecessary(SkillConfig config)
         {
-            var necessary = Nodes.FirstOrDefault(x => x.Config == config)?.Necessary
-                ?? Array.Empty<SkillConfig>();
-            return Nodes.Where(x => necessary.Any(y => y == x.Config));
+            var necessary = GetNodeConfig(config);
+
+            if(necessary == null)
+            {
+                return Array.Empty<SkillNodeConfig>();
+            }
+
+            return Nodes.Where(x => necessary.Necessary.Any(y => y == x.Config));
         }
 
         public IEnumerable<SkillNodeConfig> GetAvailable(SkillConfig config) => Nodes

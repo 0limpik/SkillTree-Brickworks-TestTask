@@ -15,7 +15,7 @@ namespace Assets.Scripts.UI
         private Button clearButton;
 
         private new SkillTreeUI target => base.target as SkillTreeUI;
-        private SkillTreeConfig treeConfig => treeConfigProperty.value as SkillTreeConfig;
+        private SkillTreeConfig selectedTreeConfig => treeConfigProperty.value as SkillTreeConfig;
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -23,13 +23,23 @@ namespace Assets.Scripts.UI
             var defaultIMGUI = new IMGUIContainer(OnInspectorGUI);
             container.Add(defaultIMGUI);
 
+            var treeConfigs = serializedObject.FindProperty(nameof(SkillTreeUI.treeConfigs));
+            var treeConfigsProperty = new IMGUIContainer(() =>
+            {
+                GUI.enabled = false;
+                EditorGUILayout.PropertyField(treeConfigs, true);
+                GUI.enabled = true;
+            });
+            container.Add(treeConfigsProperty);
+
             var buttons = new VisualElement();
             buttons.style.flexDirection = FlexDirection.Row;
-            buttons.style.marginTop = 10f;
+            buttons.style.marginTop = 3f;
             container.Add(buttons);
 
             treeConfigProperty = new ObjectField("Tree");
             treeConfigProperty.style.flexGrow = 1;
+            treeConfigProperty.style.marginLeft = 0;
             treeConfigProperty.objectType = typeof(SkillTreeConfig);
             treeConfigProperty.RegisterValueChangedCallback(_ => UpdateButtons());
 
@@ -52,11 +62,11 @@ namespace Assets.Scripts.UI
 
         private void CreateTree()
         {
-            var missing = target.treeContainer.CanAddTree(treeConfig).ToList();
+            var missing = target.treeContainer.Tree.CanAddTree(selectedTreeConfig).ToList();
 
             foreach (var config in missing)
             {
-                var available = treeConfig.GetAvailable(config).Select(x => x.Config);
+                var available = selectedTreeConfig.GetAvailable(config).Select(x => x.Config);
                 Debug.LogError($"{config} missing in tree requered by nodes: {string.Join(", ", available)}", config);
             }
 
@@ -65,14 +75,14 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            target.CreateTree(treeConfig);
-            target.treeConfigs.Add(treeConfig);
+            target.CreateTree(selectedTreeConfig);
+            target.treeConfigs.Add(selectedTreeConfig);
             UpdateButtons();
         }
 
         private void ClearTree()
         {
-            var dependents = target.treeContainer.CanRemoveTree(treeConfig).ToList();
+            var dependents = target.treeContainer.Tree.CanRemoveTree(selectedTreeConfig).ToList();
 
             foreach (var (config, dependent) in dependents)
             {
@@ -84,17 +94,17 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            target.ClearTree(treeConfig);
-            target.treeConfigs.Remove(treeConfig);
+            target.ClearTree(selectedTreeConfig);
+            target.treeConfigs.Remove(selectedTreeConfig);
             UpdateButtons();
         }
 
         private void UpdateButtons()
         {
-            var enabled = treeConfig != null;
+            var enabled = selectedTreeConfig != null;
 
-            createButton.SetEnabled(enabled && !target.treeConfigs.Contains(treeConfig));
-            clearButton.SetEnabled(enabled && target.treeConfigs.Contains(treeConfig));
+            createButton.SetEnabled(enabled && !target.treeConfigs.Contains(selectedTreeConfig));
+            clearButton.SetEnabled(enabled && target.treeConfigs.Contains(selectedTreeConfig));
         }
     }
 }

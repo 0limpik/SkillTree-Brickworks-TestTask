@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Model;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Assets.Scripts.UI
@@ -12,36 +13,33 @@ namespace Assets.Scripts.UI
 
         private SkillViewFactory<SkillLinkUI> factory;
 
+        private Dictionary<ISkillNode, SkillNodeUI> nodes = new();
+
         public void Consturct()
         {
             factory = new(linkTemplate, linksRoot);
         }
 
-        public void CreateLinks(Dictionary<ISkillNode, SkillNodeUI> skills)
+        public void CreateLink(ISkillNode node, SkillNodeUI nodeUI)
         {
-            foreach (var node in skills.Keys)
+            nodes.Add(node, nodeUI);
+            foreach (var necessary in node.Necessary)
             {
-                var skill = skills[node];
-                foreach (var avalible in node.Available)
+                var necessaryNodeUI = nodes[necessary];
+                if (factory.Items.Any(x => x.Is(nodeUI, necessaryNodeUI)))
                 {
-                    var avalibleSkill = skills[avalible];
-                    if (factory.Items.Any(x => x.Is(skill, avalibleSkill)))
-                    {
-                        continue;
-                    }
-
-                    var link = factory.Create();
-                    link.Set(skill, avalibleSkill);
+                    continue;
                 }
+
+                var link = factory.Create();
+                link.Set(nodeUI, necessaryNodeUI);
             }
         }
 
-        public void RemoveLinks(IEnumerable<ISkillNode> nodes)
+        public void RemoveLink(ISkillNode node)
         {
-            foreach (var node in nodes)
-            {
-                factory.Remove(x => x.First.Config == node.Config || x.Second.Config == node.Config);
-            }
+            factory.Remove(x => x.First.Config == node.Config || x.Second.Config == node.Config);
+            nodes.Remove(node);
         }
     }
 }
