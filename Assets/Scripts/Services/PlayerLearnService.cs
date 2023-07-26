@@ -1,5 +1,6 @@
 ﻿using System;
 using Assets.Scripts.Configuration;
+using Unity.VisualScripting.FullSerializer;
 
 namespace Assets.Scripts.Services
 {
@@ -45,7 +46,6 @@ namespace Assets.Scripts.Services
             {
                 throw new InvalidOperationException();
             }
-
             learnService.Learn(config);
             wallet.Take(nodeConfig);
         }
@@ -64,10 +64,19 @@ namespace Assets.Scripts.Services
             wallet.Receive(nodeConfig);
         }
 
+        public void ForgetAll()
+        {
+            foreach(var skill in learnService.ForgetAll())
+            {
+                var nodeConfig = skillCost.GetTreeConfig(skill);
+                wallet.Receive(nodeConfig);
+            }
+        }
+
         private bool CanLearn(SkillConfig config, SkillNodeConfig nodeConfig)
             => wallet.CanTake(nodeConfig) && learnService.CanLearn(config);
 
         private void SkillChange(SkillConfig config) => OnSkillChange?.Invoke();
-        private void PointsChange(int points) => OnSkillChange?.Invoke();
+        private void PointsChange() => OnSkillChange?.Invoke();
     }
 }

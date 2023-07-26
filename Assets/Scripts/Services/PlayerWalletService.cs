@@ -1,33 +1,26 @@
 ﻿using System;
 using Assets.Scripts.Configuration;
-using Assets.Scripts.Model;
 
 namespace Assets.Scripts.Services
 {
     internal class PlayerWalletService
     {
-        public event Action<int> OnChange
-        {
-            add => onChange.OnChange += value;
-            remove => onChange.OnChange -= value;
-        }
-        private readonly SelfInvokeEvent<int> onChange;
+        public event Action OnChange;
 
-        private int points;
+        public int Points { get; private set; }
 
         public PlayerWalletService(int points)
         {
-            this.points = points;
-            onChange = new(() => this.points);
+            this.Points = points;
         }
 
         public void Earn(int points)
         {
-            this.points += points;
-            onChange.Invoke();
+            Points += points;
+            OnChange?.Invoke();
         }
 
-        public bool CanTake(SkillNodeConfig nodeConfig) => points - nodeConfig.Cost >= 0;
+        public bool CanTake(SkillNodeConfig nodeConfig) => Points - nodeConfig.Cost >= 0;
 
         public void Take(SkillNodeConfig nodeConfig)
         {
@@ -36,14 +29,14 @@ namespace Assets.Scripts.Services
                 throw new InvalidOperationException();
             }
 
-            points -= nodeConfig.Cost;
-            onChange.Invoke();
+            Points -= nodeConfig.Cost;
+            OnChange?.Invoke();
         }
 
         public void Receive(SkillNodeConfig nodeConfig)
         {
-            points += nodeConfig.Cost;
-            onChange.Invoke();
+            Points += nodeConfig.Cost;
+            OnChange?.Invoke();
         }
     }
 }

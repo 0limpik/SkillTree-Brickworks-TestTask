@@ -24,6 +24,7 @@ namespace Assets.Scripts.UI
         {
             skillSelector.OnSelect += SetCost;
             playerWallet.OnChange += SetPoints;
+            SetPoints();
         }
 
         public void Unscribe()
@@ -34,8 +35,8 @@ namespace Assets.Scripts.UI
 
         void Start() => SetCost(null);
 
-        private void SetPoints(int points)
-            => pointsText.text = $"{points}";
+        private void SetPoints()
+            => pointsText.text = $"{playerWallet.Points}";
 
         private void SetCost(SkillNodeUI node)
         {

@@ -100,6 +100,32 @@ namespace Assets.Scripts.Services
             OnForget?.Invoke(config);
         }
 
+        public IEnumerable<SkillConfig> ForgetAll()
+        {
+            var forgeted = new List<SkillConfig>();
+
+            while(learnedSkills.Count != 0)
+            {
+                foreach (var skill in learnedSkills)
+                {
+                    if (CanForget(skill))
+                    {
+                        forgeted.Add(skill);
+                    }
+                }
+
+                foreach (var skill in forgeted)
+                {
+                    if (learnedSkills.Contains(skill))
+                    {
+                        Forget(skill);
+                    }
+                }
+            }
+
+            return forgeted;
+        }
+
         public bool IsLearn(ISkillNode node)
         {
             if (rootSkills.Contains(node.Config))

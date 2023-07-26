@@ -28,12 +28,14 @@ namespace Assets.Scripts.UI
         {
             selector.OnSelect += Select;
             skillLearn.OnLearn += Select;
+            skillLearn.OnForget += Select;
         }
 
         public void Unscribe()
         {
             selector.OnSelect -= Select;
             skillLearn.OnLearn -= Select;
+            skillLearn.OnForget -= Select;
         }
 
         private void Select(SkillNodeUI node) => Select();
@@ -58,6 +60,7 @@ namespace Assets.Scripts.UI
                 item.Deselect();
             }
             stackLinks.Clear();
+            selectedStackLinks.Clear();
 
             if (!NeedDisplay(node))
             {

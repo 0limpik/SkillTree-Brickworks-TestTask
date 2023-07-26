@@ -14,6 +14,7 @@ namespace Assets.Scripts.UI
         [SerializeField] private Button earn;
         [SerializeField] private Button learn;
         [SerializeField] private Button forget;
+        [SerializeField] private Button forgetAll;
 
         [Header("Setup")]
         [SerializeField] private int startPoints;
@@ -58,6 +59,7 @@ namespace Assets.Scripts.UI
             earn.onClick.AddListener(OnEarn);
             learn.onClick.AddListener(OnLearn);
             forget.onClick.AddListener(OnForget);
+            forgetAll.onClick.AddListener(OnForgetAll);
         }
 
         void OnDisable()
@@ -65,6 +67,7 @@ namespace Assets.Scripts.UI
             earn.onClick.RemoveListener(OnEarn);
             learn.onClick.RemoveListener(OnLearn);
             forget.onClick.RemoveListener(OnForget);
+            forgetAll.onClick.RemoveListener(OnForgetAll);
         }
 
         public void AddTree(SkillTree tree) => skillLearn.AddTree(tree);
@@ -73,6 +76,7 @@ namespace Assets.Scripts.UI
         private void OnEarn() => playerWallet.Earn(earnPoints);
         private void OnLearn() => playerLearn.Learn(SelectedConfig);
         private void OnForget() => playerLearn.Forget(SelectedConfig);
+        private void OnForgetAll() => playerLearn.ForgetAll();
 
         private void UpdateButtons()
         {
