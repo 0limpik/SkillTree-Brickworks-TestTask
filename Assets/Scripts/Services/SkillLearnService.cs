@@ -9,7 +9,8 @@ namespace Assets.Scripts.Services
 {
     internal class SkillLearnService
     {
-        public Action<SkillConfig> SkillChanged;
+        public event Action<SkillConfig> OnLearn;
+        public event Action<SkillConfig> OnForget;
 
         private readonly HashSet<SkillTree> trees = new();
 
@@ -63,7 +64,7 @@ namespace Assets.Scripts.Services
             }
 
             learnedSkills.Add(config);
-            SkillChanged?.Invoke(config);
+            OnLearn?.Invoke(config);
         }
 
         public bool CanForget(SkillConfig config)
@@ -96,10 +97,10 @@ namespace Assets.Scripts.Services
             }
 
             learnedSkills.Remove(config);
-            SkillChanged?.Invoke(config);
+            OnForget?.Invoke(config);
         }
 
-        private bool IsLearn(ISkillNode node)
+        public bool IsLearn(ISkillNode node)
         {
             if (rootSkills.Contains(node.Config))
             {

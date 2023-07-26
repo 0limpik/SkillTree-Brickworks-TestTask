@@ -20,24 +20,38 @@ namespace Assets.Scripts.UI
             factory = new(linkTemplate, linksRoot);
         }
 
-        public void CreateLink(ISkillNode node, SkillNodeUI nodeUI)
+        public void CreateLinks(ISkillNode node, SkillNodeUI nodeUI)
         {
             nodes.Add(node, nodeUI);
             foreach (var necessary in node.Necessary)
             {
                 var necessaryNodeUI = nodes[necessary];
-                if (factory.Items.Any(x => x.Is(nodeUI, necessaryNodeUI)))
+
+                var link = factory.Items.FirstOrDefault(x => x.Is(nodeUI, necessaryNodeUI));
+                if (link == null)
                 {
-                    continue;
+                    link = factory.Create();
                 }
 
-                var link = factory.Create();
+                nodeUI.AddLink(link);
+                necessaryNodeUI.AddLink(link);
                 link.Set(nodeUI, necessaryNodeUI);
             }
         }
 
-        public void RemoveLink(ISkillNode node)
+        public void RemoveLinks(ISkillNode node)
         {
+            foreach (var link in factory.Items)
+            {
+                if (link.Is(node.Config))
+                {
+                    continue;
+                }
+
+                link.Node.RemoveLink(link);
+                link.Necessary.RemoveLink(link);
+            }
+
             factory.Remove(x => x.Is(node.Config));
             nodes.Remove(node);
         }

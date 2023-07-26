@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Configuration;
+﻿using System;
+using Assets.Scripts.Configuration;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,26 +8,21 @@ namespace Assets.Scripts.UI
     [RequireComponent(typeof(CanvasRenderer))]
     internal class SkillLinkUI : MaskableGraphic
     {
-        private static readonly Vector2 uv0 = new(0, 0);
-        private static readonly Vector2 uv1 = new(0, 1);
-        private static readonly Vector2 uv2 = new(1, 1);
-        private static readonly Vector2 uv3 = new(1, 0);
+        [SerializeField] private SkillLinkUIConfig config;
 
         [field: SerializeField] public SkillNodeUI Node { get; private set; }
         [field: SerializeField] public SkillNodeUI Necessary { get; private set; }
 
-        [SerializeField] private float thickness = 100f;
+        private readonly Vector3[] corners = new Vector3[4];
 
         private Vector3 firstLastPostion;
         private Vector3 secondLastPostion;
-
-        private readonly Vector3[] corners = new Vector3[4];
+        private Color selectionColor;
 
         public bool Is(SkillNodeUI first, SkillNodeUI second)
             => (Node == first && Necessary == second) || (Node == second && Necessary == first);
 
-        public bool Is(SkillConfig config)
-            => Node.Config == config || Necessary.Config == config;
+        public bool Is(SkillConfig config) => Node.Config == config || Necessary.Config == config;
 
         public void Set(SkillNodeUI node, SkillNodeUI necessary)
         {
@@ -34,9 +30,28 @@ namespace Assets.Scripts.UI
             this.Necessary = necessary;
             this.name = $"{this.Node.name} - {Necessary.name}";
 
+            NodeUpdate();
+        }
+
+        public void NodeUpdate()
+        {
+            color = Necessary.IsLearned ? config.LearnedColor : config.NotLearnedColor;
             Redraw();
         }
 
+        public bool Select(SkillNodeUI node)
+        {
+            var select = node == Node && !Necessary.IsLearned;
+            selectionColor = select ? config.SelectionNecessaryColor : config.SelectionColor;
+            Redraw();
+            return !select;
+        }
+
+        public void Deselect()
+        {
+            selectionColor = Color.clear;
+            Redraw();
+        }
         void Update()
         {
             if (Node != null && Node.RectTransform.position != firstLastPostion
@@ -57,28 +72,60 @@ namespace Assets.Scripts.UI
         {
             vh.Clear();
 
+            if (!Application.isPlaying)
+            {
+                selectionColor = config.SelectionColor;
+            }
+
             if (Node == null || Necessary == null)
             {
                 return;
             }
 
-            Vector3 first = Node.RectTransform.anchoredPosition;
-            Vector3 second = Necessary.RectTransform.anchoredPosition;
+            var node = Node.RectTransform.anchoredPosition;
+            var necessary = Necessary.RectTransform.anchoredPosition;
+            Span<Vector3> pos = stackalloc Vector3[] { node, node, necessary, necessary };
 
-            var thicknessVector = (second - first).normalized * thickness;
+            Span<Quaternion> ang = stackalloc Quaternion[] {
+                Quaternion.AngleAxis(+90, Vector3.forward),
+                Quaternion.AngleAxis(-90, Vector3.forward),
+                Quaternion.AngleAxis(-90, Vector3.forward),
+                Quaternion.AngleAxis(+90, Vector3.forward)
+            };
 
-            corners[0] = Quaternion.AngleAxis(+90f, Vector3.forward) * thicknessVector + first;
-            corners[1] = Quaternion.AngleAxis(-90f, Vector3.forward) * thicknessVector + first;
-            corners[2] = Quaternion.AngleAxis(+90f, Vector3.forward) * thicknessVector + second;
-            corners[3] = Quaternion.AngleAxis(-90f, Vector3.forward) * thicknessVector + second;
+            Span<Vector2> uv = stackalloc Vector2[] { new(0, 0), new(1, 0), new(1, 1), new(0, 1) };
+            Span<Vector2> uvMod = stackalloc Vector2[] { new(+.25f, 0), new(-.25f, 0), new(-.25f, 0), new(+.25f, 0) };
 
-            vh.AddVert(corners[0], color, uv0);
-            vh.AddVert(corners[1], color, uv1);
-            vh.AddVert(corners[2], color, uv3);
-            vh.AddVert(corners[3], color, uv2);
+            var delta = (pos[2] - pos[0]).normalized;
 
-            vh.AddTriangle(0, 1, 2);
+            //main
+            var thickness = delta * config.Thickness;
+            for (int i = 0; i < 4; i++)
+                corners[i] = ang[i] * thickness + pos[i];
+            for (int i = 0; i < 4; i++)
+                vh.AddVert(corners[i], color, uv[i] + uvMod[i]);
             vh.AddTriangle(1, 2, 3);
+            vh.AddTriangle(0, 1, 3);
+
+            //selection
+            thickness = delta * (config.Thickness + config.SelectionThickness * .5f);
+            for (int i = 0; i < 4; i++)
+                vh.AddVert(ang[i] * thickness + pos[i], selectionColor, uv[i] + uvMod[i] * .5f);
+            AddTriangles(0);
+
+            //selectionTransparent
+            thickness = delta * (config.Thickness + config.SelectionThickness);
+            for (int i = 0; i < 4; i++)
+                vh.AddVert(ang[i] * thickness + pos[i], Color.clear, uv[i]);
+            AddTriangles(4);
+
+            void AddTriangles(int start)
+            {
+                vh.AddTriangle(start + 0, start + 3, start + 4);
+                vh.AddTriangle(start + 3, start + 4, start + 7);
+                vh.AddTriangle(start + 1, start + 2, start + 6);
+                vh.AddTriangle(start + 1, start + 5, start + 6);
+            }
         }
 
         void OnDrawGizmosSelected()
@@ -86,9 +133,9 @@ namespace Assets.Scripts.UI
             Gizmos.color = Color.green;
             Gizmos.matrix = this.transform.localToWorldMatrix;
             Gizmos.DrawLine(corners[0], corners[1]);
-            Gizmos.DrawLine(corners[1], corners[3]);
+            Gizmos.DrawLine(corners[1], corners[2]);
             Gizmos.DrawLine(corners[2], corners[3]);
-            Gizmos.DrawLine(corners[2], corners[0]);
+            Gizmos.DrawLine(corners[3], corners[0]);
         }
     }
 }

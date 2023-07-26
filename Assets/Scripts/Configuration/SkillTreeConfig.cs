@@ -17,7 +17,7 @@ namespace Assets.Scripts.Configuration
 
         public IEnumerable<SkillNodeConfig> GetRoots() => Nodes
             .Where(x => x.Necessary.Count() == 0);
-        
+
         public IEnumerable<SkillNodeConfig> GetLeaves() => Nodes
             .Where(x => GetAvailable(x.Config).Count() == 0);
 
@@ -25,7 +25,7 @@ namespace Assets.Scripts.Configuration
         {
             var necessary = GetNodeConfig(config);
 
-            if(necessary == null)
+            if (necessary == null)
             {
                 return Array.Empty<SkillNodeConfig>();
             }

@@ -33,11 +33,11 @@ namespace Assets.Scripts.Model
             }
 
             var newNodes = new Dictionary<SkillNodeConfig, SkillNode>();
-            while(true)
+            while (true)
             {
                 PassTree(treeConfig, newNodes);
 
-                if(newNodes.Count == 0)
+                if (newNodes.Count == 0)
                 {
                     break;
                 }

@@ -19,9 +19,11 @@ namespace Assets.Scripts.UI
         [Header("Setup")]
         [SerializeField, HideInInspector] public List<SkillTreeConfig> treeConfigs;
 
-        public readonly SkillTreeContainer treeContainer = new();
         private readonly SkillSelector skillSelector = new();
         private readonly SkillCostService skillCost = new();
+        private readonly SkillLearnService skillLearn = new();
+
+        public readonly SkillTreeContainer treeContainer = new();
 
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
@@ -37,10 +39,10 @@ namespace Assets.Scripts.UI
 
         private void Construct()
         {
-            nodes.Construct(skillSelector);
+            nodes.Construct(skillSelector, skillLearn);
             links.Consturct();
-            learn.Construct(skillCost, skillSelector);
-            linksSelector.Consturct(links, skillSelector);
+            learn.Construct(skillCost, skillSelector, skillLearn);
+            linksSelector.Consturct(skillSelector, skillLearn);
         }
 
         void Awake() => Construct();
@@ -57,12 +59,14 @@ namespace Assets.Scripts.UI
         {
             learn.Subscribe();
             linksSelector.Subscribe();
+            nodes.Subscribe();
         }
 
         void OnDisable()
         {
             learn.Unscribe();
             linksSelector.Unscribe();
+            nodes.Unscribe();
         }
 
         void OnDestroy()
@@ -84,7 +88,7 @@ namespace Assets.Scripts.UI
             foreach (var node in nodes)
             {
                 var nodeUI = this.nodes.CreateNode(node);
-                links.CreateLink(node, nodeUI);
+                links.CreateLinks(node, nodeUI);
             }
         }
 
@@ -94,9 +98,9 @@ namespace Assets.Scripts.UI
             skillCost.RemoveTree(treeConfig);
             learn.RemoveTree(treeContainer.Tree);
 
-            foreach(var node in removedNodes)
+            foreach (var node in removedNodes)
             {
-                links.RemoveLink(node);
+                links.RemoveLinks(node);
                 nodes.RemoveNode(node);
             }
         }

@@ -1,9 +1,9 @@
-﻿using Assets.Scripts.Configuration;
-using UnityEngine;
+﻿using System.Linq;
+using Assets.Scripts.Configuration;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
-using System.Linq;
 
 namespace Assets.Scripts.UI
 {

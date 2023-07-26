@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using Assets.Scripts.Configuration;
 using Assets.Scripts.Model;
+using Assets.Scripts.Services;
 using UnityEngine;
 
 namespace Assets.Scripts.UI
@@ -11,14 +13,28 @@ namespace Assets.Scripts.UI
 
         private SkillViewFactory<SkillNodeUI> factory;
         private SkillSelector skillSelector;
+        private SkillLearnService skillLearn;
         private RadialPlacer placer;
 
-        internal void Construct(SkillSelector skillSelector)
+        internal void Construct(SkillSelector skillSelector, SkillLearnService skillLearn)
         {
             this.skillSelector = skillSelector;
+            this.skillLearn = skillLearn;
 
             factory = new(nodeTemplate, nodesRoot);
             placer = new RadialPlacer((nodeTemplate.transform as RectTransform).rect.width);
+        }
+
+        public void Subscribe()
+        {
+            skillLearn.OnLearn += Learn;
+            skillLearn.OnForget += Forget;
+        }
+
+        public void Unscribe()
+        {
+            skillLearn.OnLearn -= Learn;
+            skillLearn.OnForget -= Forget;
         }
 
         internal SkillNodeUI CreateNode(ISkillNode node)
@@ -32,7 +48,12 @@ namespace Assets.Scripts.UI
             }
 
             nodeUI.Set(node.Config);
+            if (skillLearn.IsLearn(node))
+            {
+                nodeUI.Learn();
+            }
             skillSelector.Register(nodeUI);
+
             return nodeUI;
         }
 
@@ -44,50 +65,53 @@ namespace Assets.Scripts.UI
             skillSelector.Unregister(nodeUI);
             factory.Remove(nodeUI);
         }
-    }
 
-    public class RadialPlacer
-    {
-        private readonly float objectWidth;
-        private float degreeValue;
+        private void Learn(SkillConfig config) => factory.Items.First(x => x.Config == config).Learn();
+        private void Forget(SkillConfig config) => factory.Items.First(x => x.Config == config).Forget();
 
-        private int CurrentCircle => (int)(degreeValue / 360f);
-
-        public RadialPlacer(float objectWidth)
+        public class RadialPlacer
         {
-            this.objectWidth = objectWidth;
-        }
+            private readonly float objectWidth;
+            private float degreeValue;
 
-        public Vector2 StepNext()
-        {
-            if (CurrentCircle == 0)
+            private int CurrentCircle => (int)(degreeValue / 360f);
+
+            public RadialPlacer(float objectWidth)
             {
-                degreeValue = 360f;
-                return Vector2.zero;
+                this.objectWidth = objectWidth;
             }
 
-            return Step();
-        }
-
-        public Vector2 StepBack()
-        {
-            if (CurrentCircle == 0)
+            public Vector2 StepNext()
             {
-                degreeValue = 0;
-                return Vector2.zero;
+                if (CurrentCircle == 0)
+                {
+                    degreeValue = 360f;
+                    return Vector2.zero;
+                }
+
+                return Step();
             }
 
-            return Step(true);
-        }
+            public Vector2 StepBack()
+            {
+                if (CurrentCircle == 0)
+                {
+                    degreeValue = 0;
+                    return Vector2.zero;
+                }
 
-        private Vector2 Step(bool isBack = false)
-        {
-            var radius = CurrentCircle * objectWidth + objectWidth * 0.5f;
-            var cos = Mathf.Tan(objectWidth / radius) * Mathf.Rad2Deg;
-            var step = degreeValue % 360f / cos;
-            degreeValue = CurrentCircle * 360 + (step + (isBack ? -1 : 1)) * cos;
-            var quat = Quaternion.AngleAxis(cos * step, Vector3.back);
-            return quat * Vector2.up * radius;
+                return Step(true);
+            }
+
+            private Vector2 Step(bool isBack = false)
+            {
+                var radius = CurrentCircle * objectWidth + objectWidth * 0.5f;
+                var cos = Mathf.Tan(objectWidth / radius) * Mathf.Rad2Deg;
+                var step = degreeValue % 360f / cos;
+                degreeValue = CurrentCircle * 360 + (step + (isBack ? -1 : 1)) * cos;
+                var quat = Quaternion.AngleAxis(cos * step, Vector3.back);
+                return quat * Vector2.up * radius;
+            }
         }
     }
 }

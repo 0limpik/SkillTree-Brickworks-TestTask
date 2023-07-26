@@ -51,16 +51,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  <First>k__BackingField: {fileID: 0}
-  <Second>k__BackingField: {fileID: 0}
-  thickness: 8
+  m_Sprite: {fileID: 21300000, guid: ac0cbc8a66df9624ebe3db19ff608086, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+  config: {fileID: 11400000, guid: 0a77857edd28cb94fa45555cce6b7d52, type: 2}
+  <Node>k__BackingField: {fileID: 0}
+  <Necessary>k__BackingField: {fileID: 0}
+  corners:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
 --- !u!222 &4740643238495357213
 CanvasRenderer:
   m_ObjectHideFlags: 0

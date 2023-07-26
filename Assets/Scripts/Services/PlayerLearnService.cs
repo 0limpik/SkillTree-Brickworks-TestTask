@@ -21,13 +21,15 @@ namespace Assets.Scripts.Services
         public void Subscribe()
         {
             wallet.OnChange += PointsChange;
-            learnService.SkillChanged += SkillChange;
+            learnService.OnLearn += SkillChange;
+            learnService.OnForget += SkillChange;
         }
 
         public void Unscribe()
         {
             wallet.OnChange -= PointsChange;
-            learnService.SkillChanged -= SkillChange;
+            learnService.OnLearn -= SkillChange;
+            learnService.OnForget -= SkillChange;
         }
 
         public bool CanLearn(SkillConfig config)

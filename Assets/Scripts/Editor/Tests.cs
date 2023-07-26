@@ -63,7 +63,7 @@ namespace Assets.Scripts
         [MenuItem("TestTask/Tests/Placer")]
         static void TestPlacer()
         {
-            var placer = new RadialPlacer(100);
+            var placer = new SkillNodesUI.RadialPlacer(100);
             for (int i = 0; i < 5; i++)
             {
                 Debug.Log($"{placer.StepNext()}");

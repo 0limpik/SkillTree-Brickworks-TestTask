@@ -1,52 +1,130 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Assets.Scripts.Configuration;
+using Assets.Scripts.Services;
 using UnityEngine;
 
 namespace Assets.Scripts.UI
 {
     internal class SkillLinksSelector : MonoBehaviour
     {
-        [SerializeField] private Color necessaryColor = Color.red;
-        [SerializeField] private Color availableColor = Color.green;
-
-        private SkillLinksUI links;
         private SkillSelector selector;
+        private SkillLearnService skillLearn;
 
-        private readonly HashSet<(SkillLinkUI link, Color defaultColor)> lastSelected = new();
+        private readonly HashSet<SkillLinkUI> lastSelected = new();
+        private readonly Stack<SkillLinkUI> stackLinks = new();
+        private readonly Stack<SkillLinkUI> selectedStackLinks = new();
 
-        public void Consturct(SkillLinksUI links, SkillSelector selector)
+        private Coroutine selectCoroutine;
+
+        public void Consturct(SkillSelector skillSelector, SkillLearnService skillLearn)
         {
-            this.links = links;
-            this.selector = selector;
+            this.selector = skillSelector;
+            this.skillLearn = skillLearn;
         }
 
-        public void Subscribe() => selector.OnSelect += Select;
-        public void Unscribe() => selector.OnSelect -= Select;
-
-        public void Select(SkillNodeUI node)
+        public void Subscribe()
         {
-            if (lastSelected != null)
+            selector.OnSelect += Select;
+            skillLearn.OnLearn += Select;
+        }
+
+        public void Unscribe()
+        {
+            selector.OnSelect -= Select;
+            skillLearn.OnLearn -= Select;
+        }
+
+        private void Select(SkillNodeUI node) => Select();
+        private void Select(SkillConfig _) => Select();
+
+        private void Select()
+        {
+            if (selectCoroutine != null)
             {
-                foreach (var (link, defaultColor) in lastSelected)
-                {
-                    link.color = defaultColor;
-                }
-                lastSelected.Clear();
+                StopCoroutine(selectCoroutine);
             }
 
-            foreach (var link in links.GetLinks(node.Config))
-            {
-                lastSelected.Add((link, link.color));
+            selectCoroutine = StartCoroutine(StartSelect(selector.Selected));
+        }
 
-                if(link.Necessary.Config == node.Config)
+        private IEnumerator StartSelect(SkillNodeUI node)
+        {
+            SelectNonNecessaty(node);
+
+            foreach (var item in stackLinks)
+            {
+                item.Deselect();
+            }
+            stackLinks.Clear();
+
+            if (!NeedDisplay(node))
+            {
+                yield break;
+            }
+
+            while (true)
+            {
+                yield return null;
+
+                if (stackLinks.Count == 0)
                 {
-                    link.color = availableColor;
+                    foreach (var link in node.NecessaryNotLearned)
+                    {
+                        stackLinks.Push(link);
+                    }
                 }
 
-                if (link.Node.Config == node.Config)
+                var curentLink = stackLinks.Peek();
+                curentLink.Select(curentLink.Node);
+                if (NeedDisplay(curentLink.Necessary))
                 {
-                    link.color = necessaryColor;
+                    if (selectedStackLinks.TryPeek(out var lastLink) && lastLink == curentLink)
+                    {
+                        curentLink.Deselect();
+                        stackLinks.Pop();
+                        selectedStackLinks.Pop();
+                    }
+                    else
+                    {
+                        selectedStackLinks.Push(curentLink);
+                        foreach (var link in curentLink.Necessary.NecessaryNotLearned)
+                        {
+                            stackLinks.Push(link);
+                        }
+                    }
+                }
+                else
+                {
+                    yield return new WaitForSeconds(1);
+                    curentLink.Deselect();
+                    stackLinks.Pop();
                 }
             }
         }
+
+        private void SelectNonNecessaty(SkillNodeUI node)
+        {
+            foreach (var link in lastSelected)
+            {
+                link.Deselect();
+            }
+            lastSelected.Clear();
+
+            foreach (var link in node.Available)
+            {
+                link.Select(node);
+                lastSelected.Add(link);
+            }
+
+            foreach (var link in node.NecessaryLearned)
+            {
+                link.Select(node);
+                lastSelected.Add(link);
+            }
+        }
+
+        private bool NeedDisplay(SkillNodeUI node) => node.NecessaryNotLearned.Any() && !node.NecessaryLearned.Any();
     }
 }
