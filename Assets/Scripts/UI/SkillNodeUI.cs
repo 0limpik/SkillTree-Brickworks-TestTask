@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Assets.Scripts.Configuration;
+using TestTask.Configuration;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.Scripts.UI
+namespace TestTask.UI
 {
     internal class SkillNodeUI : MonoBehaviour
     {

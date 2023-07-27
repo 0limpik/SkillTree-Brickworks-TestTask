@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Configuration;
+using TestTask.Configuration;
 
-namespace Assets.Scripts.Model
+namespace TestTask.Model
 {
     public interface ISkillNode
     {

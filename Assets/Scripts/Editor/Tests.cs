@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Configuration;
-using Assets.Scripts.Model;
-using Assets.Scripts.UI;
+using TestTask.Configuration;
+using TestTask.Model;
+using TestTask.UI;
 using UnityEditor;
 using UnityEngine;
 

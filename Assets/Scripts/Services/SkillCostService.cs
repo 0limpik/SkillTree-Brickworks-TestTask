@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Configuration;
+using TestTask.Configuration;
 
-namespace Assets.Scripts.Services
+namespace TestTask.Services
 {
     internal class SkillCostService
     {

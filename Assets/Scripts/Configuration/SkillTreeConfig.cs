@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts.Configuration
+namespace TestTask.Configuration
 {
     [CreateAssetMenu(menuName = "TestTask/SkillTreeCfg")]
     public class SkillTreeConfig : ScriptableObject

@@ -1,10 +1,10 @@
-﻿using Assets.Scripts.Configuration;
-using Assets.Scripts.Model;
-using Assets.Scripts.Services;
+﻿using TestTask.Configuration;
+using TestTask.Model;
+using TestTask.Services;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.Scripts.UI
+namespace TestTask.UI
 {
     internal class SkinLearnUI : MonoBehaviour
     {

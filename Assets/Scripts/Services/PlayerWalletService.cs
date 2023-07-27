@@ -1,7 +1,7 @@
 ﻿using System;
-using Assets.Scripts.Configuration;
+using TestTask.Configuration;
 
-namespace Assets.Scripts.Services
+namespace TestTask.Services
 {
     internal class PlayerWalletService
     {

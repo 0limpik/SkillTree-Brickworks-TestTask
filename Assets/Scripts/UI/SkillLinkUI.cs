@@ -1,9 +1,9 @@
 ﻿using System;
-using Assets.Scripts.Configuration;
+using TestTask.Configuration;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.Scripts.UI
+namespace TestTask.UI
 {
     [RequireComponent(typeof(CanvasRenderer))]
     internal class SkillLinkUI : MaskableGraphic

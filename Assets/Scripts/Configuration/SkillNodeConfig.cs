@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Scripts.Configuration
+namespace TestTask.Configuration
 {
     [Serializable]
     public class SkillNodeConfig

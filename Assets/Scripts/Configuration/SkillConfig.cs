@@ -6,7 +6,7 @@ using System.IO;
 using UnityEditor;
 #endif
 
-namespace Assets.Scripts.Configuration
+namespace TestTask.Configuration
 {
     [CreateAssetMenu(menuName = "TestTask/SkillCfg")]
     public class SkillConfig : ScriptableObject

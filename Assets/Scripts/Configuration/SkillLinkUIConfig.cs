@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.Configuration
+namespace TestTask.Configuration
 {
     [CreateAssetMenu(menuName = "TestTask/SkillLinksColors")]
     internal class SkillLinkUIConfig : ScriptableObject

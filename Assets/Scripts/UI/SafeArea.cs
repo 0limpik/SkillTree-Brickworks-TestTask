@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Screen = UnityEngine.Device.Screen;
 
-namespace Assets.Scripts.UI
+namespace TestTask.UI
 {
     [ExecuteAlways]
     public class SafeArea : MonoBehaviour

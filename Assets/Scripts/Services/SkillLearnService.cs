@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Configuration;
-using Assets.Scripts.Model;
+using TestTask.Configuration;
+using TestTask.Model;
 
-namespace Assets.Scripts.Services
+namespace TestTask.Services
 {
     internal class SkillLearnService
     {

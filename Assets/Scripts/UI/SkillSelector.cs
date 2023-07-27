@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Assets.Scripts.UI
+namespace TestTask.UI
 {
     internal class SkillSelector
     {

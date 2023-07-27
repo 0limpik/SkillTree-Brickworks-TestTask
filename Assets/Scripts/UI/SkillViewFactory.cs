@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Assets.Scripts.UI
+namespace TestTask.UI
 {
     internal class SkillViewFactory<T> where T : MonoBehaviour
     {

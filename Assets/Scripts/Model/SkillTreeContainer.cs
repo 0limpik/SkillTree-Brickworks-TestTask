@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Configuration;
+using TestTask.Configuration;
 using Unity.VisualScripting;
 
-namespace Assets.Scripts.Model
+namespace TestTask.Model
 {
     public class SkillTreeContainer
     {

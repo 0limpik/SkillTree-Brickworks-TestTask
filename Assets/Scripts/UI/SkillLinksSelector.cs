@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Configuration;
-using Assets.Scripts.Services;
+using TestTask.Configuration;
+using TestTask.Services;
 using UnityEngine;
 
-namespace Assets.Scripts.UI
+namespace TestTask.UI
 {
     internal class SkillLinksSelector : MonoBehaviour
     {

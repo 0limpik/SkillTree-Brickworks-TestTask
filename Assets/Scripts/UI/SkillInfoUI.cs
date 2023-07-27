@@ -1,8 +1,8 @@
-﻿using Assets.Scripts.Services;
+﻿using TestTask.Services;
 using TMPro;
 using UnityEngine;
 
-namespace Assets.Scripts.UI
+namespace TestTask.UI
 {
     internal class SkillInfoUI : MonoBehaviour
     {

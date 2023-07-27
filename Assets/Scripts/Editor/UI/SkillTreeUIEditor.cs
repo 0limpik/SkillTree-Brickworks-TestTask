@@ -1,11 +1,11 @@
 ﻿using System.Linq;
-using Assets.Scripts.Configuration;
+using TestTask.Configuration;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Assets.Scripts.UI
+namespace TestTask.UI
 {
     [CustomEditor(typeof(SkillTreeUI))]
     internal class SkillTreeUIEditor : Editor
