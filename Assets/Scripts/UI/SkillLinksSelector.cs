@@ -106,7 +106,9 @@ namespace TestTask.UI
                 }
 
                 //prevent while stuck
+#if UNITY_EDITOR
                 yield return null;
+#endif
             }
         }
 

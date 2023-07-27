@@ -10,10 +10,6 @@ namespace TestTask.UI
     [ExecuteAlways]
     public class SafeArea : MonoBehaviour
     {
-        private static readonly FieldInfo activeShimChangedProperty = typeof(Screen).Assembly
-            .GetType("UnityEngine.ShimManager")
-            .GetField("ActiveShimChanged", BindingFlags.Static | BindingFlags.NonPublic);
-
         [SerializeField] private CanvasScaler scaler;
         [SerializeField] private RectTransform safeArea;
 
@@ -21,6 +17,11 @@ namespace TestTask.UI
         private bool needSetSafeArea;
 
         void Start() => SetSafeArea();
+
+#if UNITY_EDITOR
+        private static readonly FieldInfo activeShimChangedProperty = typeof(Screen).Assembly
+            .GetType("UnityEngine.ShimManager")
+            .GetField("ActiveShimChanged", BindingFlags.Static | BindingFlags.NonPublic);
 
         void OnEnable()
         {
@@ -38,12 +39,13 @@ namespace TestTask.UI
         }
 
         void OnDisable() => activeShimChanged -= SetSafeArea;
+#endif
 
         private async void SetSafeArea()
         {
             needSetSafeArea = true;
             await Task.Yield();
-            if (!needSetSafeArea)
+            if (this == null || !needSetSafeArea)
             {
                 return;
             }
