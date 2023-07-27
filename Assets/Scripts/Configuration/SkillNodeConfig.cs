@@ -7,10 +7,12 @@ namespace Assets.Scripts.Configuration
     [Serializable]
     public class SkillNodeConfig
     {
-        [field: SerializeField] public SkillConfig Config { get; private set; }
-        [field: SerializeField] public int Cost { get; private set; }
-        [SerializeField] private SkillConfig[] necessaryToLearn;
+        [SerializeField] private SkillConfig    config;
+        [SerializeField] private int            cost;
+        [SerializeField] private SkillConfig[]  necessaryToLearn;
 
+        public SkillConfig Config => config;
+        public int Cost => cost;
         public IEnumerable<SkillConfig> Necessary => necessaryToLearn;
 
         public override string ToString()

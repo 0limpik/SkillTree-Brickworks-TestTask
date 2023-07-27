@@ -11,9 +11,10 @@ namespace Assets.Scripts.UI
         [SerializeField] private Transform nodesRoot;
         [SerializeField] private SkillNodeUI nodeTemplate;
 
-        private SkillViewFactory<SkillNodeUI> factory;
         private SkillSelector skillSelector;
         private SkillLearnService skillLearn;
+
+        private SkillViewFactory<SkillNodeUI> factory;
         private RadialPlacer placer;
 
         internal void Construct(SkillSelector skillSelector, SkillLearnService skillLearn)

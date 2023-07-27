@@ -9,15 +9,14 @@ namespace Assets.Scripts.UI
 {
     public class SkillTreeUI : MonoBehaviour
     {
+        [Header("Setup")]
+        [SerializeField, HideInInspector] public List<SkillTreeConfig> treeConfigs;
+
         [Header("Links")]
         [SerializeField] private SkinLearnUI learn;
-        [SerializeField] private SkillLinksSelector linksSelector;
 
         [SerializeField] private SkillNodesUI nodes;
         [SerializeField] private SkillLinksUI links;
-
-        [Header("Setup")]
-        [SerializeField, HideInInspector] public List<SkillTreeConfig> treeConfigs;
 
         private readonly SkillSelector skillSelector = new();
         private readonly SkillCostService skillCost = new();
@@ -42,7 +41,6 @@ namespace Assets.Scripts.UI
             nodes.Construct(skillSelector, skillLearn);
             links.Consturct();
             learn.Construct(skillCost, skillSelector, skillLearn);
-            linksSelector.Consturct(skillSelector, skillLearn);
         }
 
         void Awake() => Construct();
@@ -57,15 +55,13 @@ namespace Assets.Scripts.UI
 
         void OnEnable()
         {
-            learn.Subscribe();
-            linksSelector.Subscribe();
             nodes.Subscribe();
+            learn.Subscribe();
         }
 
         void OnDisable()
         {
             learn.Unscribe();
-            linksSelector.Unscribe();
             nodes.Unscribe();
         }
 

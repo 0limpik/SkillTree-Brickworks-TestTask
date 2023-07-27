@@ -7,8 +7,8 @@ namespace Assets.Scripts.UI
         public event Action<SkillNodeUI> OnSelect;
         public SkillNodeUI Selected { get; private set; }
 
-        public void Register(SkillNodeUI skillNodeUI) => skillNodeUI.OnNodeSelect += SelectNode;
-        public void Unregister(SkillNodeUI skillNodeUI) => skillNodeUI.OnNodeSelect -= SelectNode;
+        public void Register(SkillNodeUI node) => node.OnNodeSelect += SelectNode;
+        public void Unregister(SkillNodeUI node) => node.OnNodeSelect -= SelectNode;
 
         private void SelectNode(SkillNodeUI node)
         {

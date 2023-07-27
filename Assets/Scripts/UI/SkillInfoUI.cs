@@ -11,37 +11,40 @@ namespace Assets.Scripts.UI
 
         private SkillSelector skillSelector;
         private SkillCostService skillCost;
-        private PlayerWalletService playerWallet;
+        private PlayerWalletService wallet;
 
-        public void Construct(SkillSelector skillSelector, SkillCostService skillCost, PlayerWalletService playerWallet)
+        public void Construct(
+            SkillSelector skillSelector,
+            SkillCostService skillCost, 
+            PlayerWalletService wallet)
         {
             this.skillSelector = skillSelector;
             this.skillCost = skillCost;
-            this.playerWallet = playerWallet;
+            this.wallet = wallet;
         }
 
         public void Subscribe()
         {
             skillSelector.OnSelect += SetCost;
-            playerWallet.OnChange += SetPoints;
+            wallet.OnChange += SetPoints;
             SetPoints();
         }
 
         public void Unscribe()
         {
             skillSelector.OnSelect -= SetCost;
-            playerWallet.OnChange -= SetPoints;
+            wallet.OnChange -= SetPoints;
         }
 
         void Start() => SetCost(null);
 
         private void SetPoints()
-            => pointsText.text = $"{playerWallet.Points}";
+            => pointsText.text = $"{wallet.Points}";
 
         private void SetCost(SkillNodeUI node)
         {
             if (node == null)
-                costText.text = "Unselected";
+                costText.text = "-";
             else
                 costText.text = $"{skillCost.GetTreeConfig(node.Config).Cost}";
         }

@@ -24,7 +24,7 @@ namespace Assets.Scripts.Model
                 throw new InvalidOperationException(nameof(Tree.CanAddTree));
             }
 
-            var addedNodes = new HashSet<ISkillNode>(treeConfig.Nodes.Length);
+            var addedNodes = new List<ISkillNode>(treeConfig.Nodes.Count());
             foreach (var root in treeConfig.GetRoots())
             {
                 var node = new SkillNode(root.Config);

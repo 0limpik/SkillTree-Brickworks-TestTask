@@ -8,17 +8,20 @@ namespace Assets.Scripts.Configuration
     [CreateAssetMenu(menuName = "TestTask/SkillTreeCfg")]
     public class SkillTreeConfig : ScriptableObject
     {
-        [field: SerializeField] public SkillNodeConfig[] Nodes { get; private set; }
+        [SerializeField] private SkillNodeConfig[] nodes;
 
-        public IEnumerable<SkillConfig> Configs => Nodes.Select(x => x.Config);
+        public IEnumerable<SkillNodeConfig> Nodes => nodes;
 
-        public SkillNodeConfig GetNodeConfig(SkillConfig config) => Nodes
+        public IEnumerable<SkillConfig> Configs => nodes
+            .Select(x => x.Config);
+
+        public SkillNodeConfig GetNodeConfig(SkillConfig config) => nodes
             .FirstOrDefault(x => x.Config == config);
 
-        public IEnumerable<SkillNodeConfig> GetRoots() => Nodes
+        public IEnumerable<SkillNodeConfig> GetRoots() => nodes
             .Where(x => x.Necessary.Count() == 0);
 
-        public IEnumerable<SkillNodeConfig> GetLeaves() => Nodes
+        public IEnumerable<SkillNodeConfig> GetLeaves() => nodes
             .Where(x => GetAvailable(x.Config).Count() == 0);
 
         public IEnumerable<SkillNodeConfig> GetNecessary(SkillConfig config)
@@ -30,12 +33,13 @@ namespace Assets.Scripts.Configuration
                 return Array.Empty<SkillNodeConfig>();
             }
 
-            return Nodes.Where(x => necessary.Necessary.Any(y => y == x.Config));
+            return nodes.Where(x => necessary.Necessary.Any(y => y == x.Config));
         }
 
-        public IEnumerable<SkillNodeConfig> GetAvailable(SkillConfig config) => Nodes
+        public IEnumerable<SkillNodeConfig> GetAvailable(SkillConfig config) => nodes
             .Where(x => x.Necessary.Contains(config));
 
-        public bool Contains(SkillConfig config) => Nodes.Any(x => x.Config == config);
+        public bool Contains(SkillConfig config) => nodes
+            .Any(x => x.Config == config);
     }
 }

@@ -9,36 +9,38 @@ namespace Assets.Scripts.UI
 {
     internal class SkillLinksSelector : MonoBehaviour
     {
-        private SkillSelector selector;
+        [SerializeField] private float selectDelay = 1;
+
+        private SkillSelector skillSelector;
         private SkillLearnService skillLearn;
 
-        private readonly HashSet<SkillLinkUI> lastSelected = new();
+        private readonly List<SkillLinkUI> lastSelected = new();
         private readonly Stack<SkillLinkUI> stackLinks = new();
         private readonly Stack<SkillLinkUI> selectedStackLinks = new();
 
         private Coroutine selectCoroutine;
 
-        public void Consturct(SkillSelector skillSelector, SkillLearnService skillLearn)
+        public void Construct(SkillSelector skillSelector, SkillLearnService skillLearn)
         {
-            this.selector = skillSelector;
+            this.skillSelector = skillSelector;
             this.skillLearn = skillLearn;
         }
 
         public void Subscribe()
         {
-            selector.OnSelect += Select;
+            skillSelector.OnSelect += Select;
             skillLearn.OnLearn += Select;
             skillLearn.OnForget += Select;
         }
 
         public void Unscribe()
         {
-            selector.OnSelect -= Select;
+            skillSelector.OnSelect -= Select;
             skillLearn.OnLearn -= Select;
             skillLearn.OnForget -= Select;
         }
 
-        private void Select(SkillNodeUI node) => Select();
+        private void Select(SkillNodeUI _) => Select();
         private void Select(SkillConfig _) => Select();
 
         private void Select()
@@ -48,7 +50,7 @@ namespace Assets.Scripts.UI
                 StopCoroutine(selectCoroutine);
             }
 
-            selectCoroutine = StartCoroutine(StartSelect(selector.Selected));
+            selectCoroutine = StartCoroutine(StartSelect(skillSelector.Selected));
         }
 
         private IEnumerator StartSelect(SkillNodeUI node)
@@ -69,11 +71,9 @@ namespace Assets.Scripts.UI
 
             while (true)
             {
-                yield return null;
-
                 if (stackLinks.Count == 0)
                 {
-                    foreach (var link in node.NecessaryNotLearned)
+                    foreach (var link in GetNotLearned(node))
                     {
                         stackLinks.Push(link);
                     }
@@ -92,7 +92,7 @@ namespace Assets.Scripts.UI
                     else
                     {
                         selectedStackLinks.Push(curentLink);
-                        foreach (var link in curentLink.Necessary.NecessaryNotLearned)
+                        foreach (var link in GetNotLearned(curentLink.Necessary))
                         {
                             stackLinks.Push(link);
                         }
@@ -100,10 +100,13 @@ namespace Assets.Scripts.UI
                 }
                 else
                 {
-                    yield return new WaitForSeconds(1);
+                    yield return new WaitForSeconds(selectDelay);
                     curentLink.Deselect();
                     stackLinks.Pop();
                 }
+
+                //prevent while stuck
+                yield return null;
             }
         }
 
@@ -115,19 +118,31 @@ namespace Assets.Scripts.UI
             }
             lastSelected.Clear();
 
-            foreach (var link in node.Available)
+            foreach (var link in GetAvailable(node))
             {
                 link.Select(node);
                 lastSelected.Add(link);
             }
 
-            foreach (var link in node.NecessaryLearned)
+            foreach (var link in GetLearned(node))
             {
                 link.Select(node);
                 lastSelected.Add(link);
             }
         }
 
-        private bool NeedDisplay(SkillNodeUI node) => node.NecessaryNotLearned.Any() && !node.NecessaryLearned.Any();
+        private bool NeedDisplay(SkillNodeUI node)
+            => GetNotLearned(node).Any() && !GetLearned(node).Any();
+
+        private IEnumerable<SkillLinkUI> GetLearned(SkillNodeUI node) => node.Links
+            .Where(x => x.Node == node)
+            .Where(x => x.Necessary.IsLearned);
+
+        private IEnumerable<SkillLinkUI> GetNotLearned(SkillNodeUI node) => node.Links
+            .Where(x => x.Node == node)
+            .Where(x => !x.Necessary.IsLearned);
+
+        private IEnumerable<SkillLinkUI> GetAvailable(SkillNodeUI node) => node.Links
+            .Where(x => x.Necessary == node);
     }
 }

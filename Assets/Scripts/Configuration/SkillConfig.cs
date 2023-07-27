@@ -11,7 +11,9 @@ namespace Assets.Scripts.Configuration
     [CreateAssetMenu(menuName = "TestTask/SkillCfg")]
     public class SkillConfig : ScriptableObject
     {
-        [field: SerializeField] public string Name { get; private set; }
+        [SerializeField] private string _name;
+
+        public string Name => _name;
 
         public override string ToString() => $"{Name}";
 
@@ -25,12 +27,12 @@ namespace Assets.Scripts.Configuration
                 .Where(x => string.IsNullOrEmpty(x.cfg.Name))
                 .ToArray();
 
-            foreach (var (path, cfg) in emptyNameCfgs)
+            foreach (var (path, config) in emptyNameCfgs)
             {
                 var name = Path.GetFileNameWithoutExtension(path);
-                cfg.Name = name;
-                EditorUtility.SetDirty(cfg);
-                Debug.Log($"{path} {nameof(cfg.Name)} has been set to: {name}");
+                config._name = name;
+                EditorUtility.SetDirty(config);
+                Debug.Log($"{path} {nameof(config.Name)} has been set to: {name}");
             }
         }
 #endif

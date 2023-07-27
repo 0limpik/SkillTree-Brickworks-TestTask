@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Configuration;
 using Assets.Scripts.Model;
-using Unity.VisualScripting;
 
 namespace Assets.Scripts.Services
 {
@@ -12,25 +11,26 @@ namespace Assets.Scripts.Services
         public event Action<SkillConfig> OnLearn;
         public event Action<SkillConfig> OnForget;
 
-        private readonly HashSet<SkillTree> trees = new();
+        private readonly List<SkillTree> trees = new();
 
-        private readonly HashSet<SkillConfig> learnedSkills = new();
-        private readonly HashSet<SkillConfig> rootSkills = new();
+        private readonly List<SkillConfig> learnedSkills = new();
+        private readonly List<SkillConfig> rootSkills = new();
 
         public void AddTree(SkillTree tree)
         {
             trees.Add(tree);
-            var rootConfigs = GetRootConfigs(tree);
-            rootSkills.AddRange(rootConfigs);
+            foreach (var node in tree.GetRoots())
+            {
+                rootSkills.Add(node.Config);
+            }
         }
 
         public void RemoveTree(SkillTree tree)
         {
             trees.Remove(tree);
-            var roots = GetRootConfigs(tree).ToArray();
-            foreach (var config in roots)
+            foreach (var node in tree.GetRoots())
             {
-                rootSkills.Remove(config);
+                rootSkills.Remove(node.Config);
             }
         }
 
@@ -104,8 +104,9 @@ namespace Assets.Scripts.Services
         {
             var forgeted = new List<SkillConfig>();
 
-            while(learnedSkills.Count != 0)
+            while (learnedSkills.Count != 0)
             {
+                var learnedSkillsCount = learnedSkills.Count;
                 foreach (var skill in learnedSkills)
                 {
                     if (CanForget(skill))
@@ -120,6 +121,11 @@ namespace Assets.Scripts.Services
                     {
                         Forget(skill);
                     }
+                }
+
+                if (learnedSkillsCount == learnedSkills.Count)
+                {
+                    throw new ApplicationException("prevent while stuck");
                 }
             }
 
@@ -155,9 +161,5 @@ namespace Assets.Scripts.Services
 
             throw new ArgumentException(nameof(config));
         }
-
-        private IEnumerable<SkillConfig> GetRootConfigs(SkillTree tree) => tree.Nodes
-            .Where(x => x.Necessary.Count() == 0)
-            .Select(x => x.Config);
     }
 }

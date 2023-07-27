@@ -10,62 +10,66 @@ namespace Assets.Scripts.UI
     {
         [SerializeField] private SkillLinkUIConfig config;
 
-        [field: SerializeField] public SkillNodeUI Node { get; private set; }
-        [field: SerializeField] public SkillNodeUI Necessary { get; private set; }
+        [SerializeField] private SkillNodeUI node;
+        [SerializeField] private SkillNodeUI necessary;
+
+        public SkillNodeUI Node => node;
+        public SkillNodeUI Necessary => necessary;
 
         private readonly Vector3[] corners = new Vector3[4];
 
-        private Vector3 firstLastPostion;
-        private Vector3 secondLastPostion;
+        private Vector3 nodeLastPostion;
+        private Vector3 necessaryLastPostion;
         private Color selectionColor;
 
         public bool Is(SkillNodeUI first, SkillNodeUI second)
-            => (Node == first && Necessary == second) || (Node == second && Necessary == first);
+            => (node == first && necessary == second) || (node == second && necessary == first);
 
-        public bool Is(SkillConfig config) => Node.Config == config || Necessary.Config == config;
+        public bool Is(SkillConfig config) => node.Config == config || necessary.Config == config;
 
         public void Set(SkillNodeUI node, SkillNodeUI necessary)
         {
-            this.Node = node;
-            this.Necessary = necessary;
-            this.name = $"{this.Node.name} - {Necessary.name}";
+            this.node = node;
+            this.necessary = necessary;
+            this.name = $"{node.name} - {necessary.name}";
 
             NodeUpdate();
         }
 
         public void NodeUpdate()
         {
-            color = Necessary.IsLearned ? config.LearnedColor : config.NotLearnedColor;
-            Redraw();
+            color = necessary.IsLearned ? config.Learned : config.Forgeted;
+            this.SetVerticesDirty();
         }
 
-        public bool Select(SkillNodeUI node)
+        public void Select(SkillNodeUI node)
         {
-            var select = node == Node && !Necessary.IsLearned;
-            selectionColor = select ? config.SelectionNecessaryColor : config.SelectionColor;
-            Redraw();
-            return !select;
+            selectionColor = this.node == node && !necessary.IsLearned
+                ? config.SelectedNecessary
+                : config.Selected;
+            this.SetVerticesDirty();
         }
 
         public void Deselect()
         {
             selectionColor = Color.clear;
-            Redraw();
-        }
-        void Update()
-        {
-            if (Node != null && Node.RectTransform.position != firstLastPostion
-                || Necessary != null && Necessary.RectTransform.position != secondLastPostion)
-            {
-                Redraw();
-            }
+            this.SetVerticesDirty();
         }
 
-        private void Redraw()
+        void Update()
         {
-            this.SetVerticesDirty();
-            firstLastPostion = Node.RectTransform.position;
-            secondLastPostion = Necessary.RectTransform.position;
+            if (node == null || necessary == null)
+            {
+                return;
+            }
+
+            if (node.RectTransform.position != nodeLastPostion
+                || necessary.RectTransform.position != necessaryLastPostion)
+            {
+                nodeLastPostion = node.RectTransform.position;
+                necessaryLastPostion = necessary.RectTransform.position;
+                this.SetVerticesDirty();
+            }
         }
 
         protected override void OnPopulateMesh(VertexHelper vh)
@@ -74,17 +78,13 @@ namespace Assets.Scripts.UI
 
             if (!Application.isPlaying)
             {
-                selectionColor = config.SelectionColor;
+                selectionColor = config.Selected;
             }
 
-            if (Node == null || Necessary == null)
+            if (node == null || necessary == null)
             {
                 return;
             }
-
-            var node = Node.RectTransform.anchoredPosition;
-            var necessary = Necessary.RectTransform.anchoredPosition;
-            Span<Vector3> pos = stackalloc Vector3[] { node, node, necessary, necessary };
 
             Span<Quaternion> ang = stackalloc Quaternion[] {
                 Quaternion.AngleAxis(+90, Vector3.forward),
@@ -92,31 +92,40 @@ namespace Assets.Scripts.UI
                 Quaternion.AngleAxis(-90, Vector3.forward),
                 Quaternion.AngleAxis(+90, Vector3.forward)
             };
-
-            Span<Vector2> uv = stackalloc Vector2[] { new(0, 0), new(1, 0), new(1, 1), new(0, 1) };
-            Span<Vector2> uvMod = stackalloc Vector2[] { new(+.25f, 0), new(-.25f, 0), new(-.25f, 0), new(+.25f, 0) };
+            var nodePos         = Node.RectTransform.anchoredPosition;
+            var necessaryPos    = Necessary.RectTransform.anchoredPosition;
+            Span<Vector3> pos   = stackalloc Vector3[] { nodePos,       nodePos,        necessaryPos,   necessaryPos };
+            Span<Vector2> uv    = stackalloc Vector2[] { new(0, 0),     new(1, 0),      new(1, 1),      new(0, 1) };
+            Span<Vector2> uvMod = stackalloc Vector2[] { new(+.25f, 0), new(-.25f, 0),  new(-.25f, 0),  new(+.25f, 0) };
 
             var delta = (pos[2] - pos[0]).normalized;
 
             //main
             var thickness = delta * config.Thickness;
+
             for (int i = 0; i < 4; i++)
                 corners[i] = ang[i] * thickness + pos[i];
+
             for (int i = 0; i < 4; i++)
                 vh.AddVert(corners[i], color, uv[i] + uvMod[i]);
+
             vh.AddTriangle(1, 2, 3);
             vh.AddTriangle(0, 1, 3);
 
             //selection
-            thickness = delta * (config.Thickness + config.SelectionThickness * .5f);
+            thickness = delta * (config.Thickness + config.SelectedThickness * .5f);
+
             for (int i = 0; i < 4; i++)
                 vh.AddVert(ang[i] * thickness + pos[i], selectionColor, uv[i] + uvMod[i] * .5f);
+
             AddTriangles(0);
 
             //selectionTransparent
-            thickness = delta * (config.Thickness + config.SelectionThickness);
+            thickness = delta * (config.Thickness + config.SelectedThickness);
+
             for (int i = 0; i < 4; i++)
                 vh.AddVert(ang[i] * thickness + pos[i], Color.clear, uv[i]);
+
             AddTriangles(4);
 
             void AddTriangles(int start)

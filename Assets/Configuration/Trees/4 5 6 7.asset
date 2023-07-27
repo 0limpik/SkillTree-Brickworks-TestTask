@@ -12,21 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26847b27df468c747849135ecffdb36f, type: 3}
   m_Name: 4 5 6 7
   m_EditorClassIdentifier: 
-  <Nodes>k__BackingField:
-  - <Config>k__BackingField: {fileID: 11400000, guid: 732da8a18395f3742832659acea1c037, type: 2}
-    <Cost>k__BackingField: 5
+  nodes:
+  - config: {fileID: 11400000, guid: 732da8a18395f3742832659acea1c037, type: 2}
+    cost: 5
     necessaryToLearn:
     - {fileID: 11400000, guid: 7651c53c4cb4dfd4e8c01d6569b21ddb, type: 2}
-  - <Config>k__BackingField: {fileID: 11400000, guid: 2e3a615f23393eb49a36708d1bed5912, type: 2}
-    <Cost>k__BackingField: 10
+  - config: {fileID: 11400000, guid: 2e3a615f23393eb49a36708d1bed5912, type: 2}
+    cost: 10
     necessaryToLearn:
     - {fileID: 11400000, guid: 732da8a18395f3742832659acea1c037, type: 2}
-  - <Config>k__BackingField: {fileID: 11400000, guid: 56cacd1e9fff8354dad2d64fc8d716d1, type: 2}
-    <Cost>k__BackingField: 10
+  - config: {fileID: 11400000, guid: 56cacd1e9fff8354dad2d64fc8d716d1, type: 2}
+    cost: 10
     necessaryToLearn:
     - {fileID: 11400000, guid: 732da8a18395f3742832659acea1c037, type: 2}
-  - <Config>k__BackingField: {fileID: 11400000, guid: 3f2ac5e54ec742d498a4abf915b61735, type: 2}
-    <Cost>k__BackingField: 15
+  - config: {fileID: 11400000, guid: 3f2ac5e54ec742d498a4abf915b61735, type: 2}
+    cost: 15
     necessaryToLearn:
     - {fileID: 11400000, guid: 2e3a615f23393eb49a36708d1bed5912, type: 2}
     - {fileID: 11400000, guid: 56cacd1e9fff8354dad2d64fc8d716d1, type: 2}

@@ -1,6 +1,5 @@
 ﻿using System;
 using Assets.Scripts.Configuration;
-using Unity.VisualScripting.FullSerializer;
 
 namespace Assets.Scripts.Services
 {
@@ -9,28 +8,31 @@ namespace Assets.Scripts.Services
         public event Action OnSkillChange;
 
         private readonly PlayerWalletService wallet;
-        private readonly SkillLearnService learnService;
+        private readonly SkillLearnService skillLearn;
         private readonly SkillCostService skillCost;
 
-        public PlayerLearnService(PlayerWalletService wallet, SkillLearnService learnService, SkillCostService skillCost)
+        public PlayerLearnService(
+            PlayerWalletService wallet,
+            SkillLearnService skillLearn,
+            SkillCostService skillCost)
         {
             this.wallet = wallet;
-            this.learnService = learnService;
+            this.skillLearn = skillLearn;
             this.skillCost = skillCost;
         }
 
         public void Subscribe()
         {
             wallet.OnChange += PointsChange;
-            learnService.OnLearn += SkillChange;
-            learnService.OnForget += SkillChange;
+            skillLearn.OnLearn += SkillChange;
+            skillLearn.OnForget += SkillChange;
         }
 
         public void Unscribe()
         {
             wallet.OnChange -= PointsChange;
-            learnService.OnLearn -= SkillChange;
-            learnService.OnForget -= SkillChange;
+            skillLearn.OnLearn -= SkillChange;
+            skillLearn.OnForget -= SkillChange;
         }
 
         public bool CanLearn(SkillConfig config)
@@ -46,11 +48,11 @@ namespace Assets.Scripts.Services
             {
                 throw new InvalidOperationException();
             }
-            learnService.Learn(config);
+            skillLearn.Learn(config);
             wallet.Take(nodeConfig);
         }
 
-        public bool CanForget(SkillConfig config) => learnService.CanForget(config);
+        public bool CanForget(SkillConfig config) => skillLearn.CanForget(config);
 
         public void Forget(SkillConfig config)
         {
@@ -59,14 +61,14 @@ namespace Assets.Scripts.Services
                 throw new InvalidOperationException();
             }
 
-            learnService.Forget(config);
+            skillLearn.Forget(config);
             var nodeConfig = skillCost.GetTreeConfig(config);
             wallet.Receive(nodeConfig);
         }
 
         public void ForgetAll()
         {
-            foreach(var skill in learnService.ForgetAll())
+            foreach (var skill in skillLearn.ForgetAll())
             {
                 var nodeConfig = skillCost.GetTreeConfig(skill);
                 wallet.Receive(nodeConfig);
@@ -74,7 +76,7 @@ namespace Assets.Scripts.Services
         }
 
         private bool CanLearn(SkillConfig config, SkillNodeConfig nodeConfig)
-            => wallet.CanTake(nodeConfig) && learnService.CanLearn(config);
+            => wallet.CanTake(nodeConfig) && skillLearn.CanLearn(config);
 
         private void SkillChange(SkillConfig config) => OnSkillChange?.Invoke();
         private void PointsChange() => OnSkillChange?.Invoke();

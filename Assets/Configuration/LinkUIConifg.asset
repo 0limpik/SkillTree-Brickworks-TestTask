@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cac576cdb1070074cb69e6095efb9184, type: 3}
   m_Name: LinkUIConifg
   m_EditorClassIdentifier: 
-  <LearnedColor>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
-  <NotLearnedColor>k__BackingField: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 1}
-  <Thickness>k__BackingField: 8
-  <SelectionColor>k__BackingField: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
-  <SelectionThickness>k__BackingField: 12
+  learned: {r: 1, g: 1, b: 1, a: 1}
+  forgeted: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 1}
+  thickness: 8
+  selected: {r: 0, g: 0, b: 0, a: 1}
+  selectedNecessary: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
+  selectedThickness: 12

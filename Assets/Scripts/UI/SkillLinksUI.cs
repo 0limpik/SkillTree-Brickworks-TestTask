@@ -13,7 +13,7 @@ namespace Assets.Scripts.UI
 
         private SkillViewFactory<SkillLinkUI> factory;
 
-        private Dictionary<ISkillNode, SkillNodeUI> nodes = new();
+        private readonly Dictionary<ISkillNode, SkillNodeUI> nodes = new();
 
         public void Consturct()
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Configuration;
@@ -10,25 +11,22 @@ namespace Assets.Scripts.UI
 {
     internal class SkillNodeUI : MonoBehaviour
     {
-        public event Action<SkillNodeUI> OnNodeSelect;
-
-        [field: SerializeField] public SkillConfig Config { get; private set; }
-
+        [SerializeField] private SkillConfig config;
         [SerializeField] private Button button;
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private Image selectImage;
         [SerializeField] private Color learnedColor = Color.white;
 
+        public event Action<SkillNodeUI> OnNodeSelect;
+
+        public SkillConfig  Config => config;
         public RectTransform RectTransform => this.transform as RectTransform;
 
         public bool IsLearned { get; private set; }
 
-        public IEnumerable<SkillLinkUI> Available => links.Where(x => x.Necessary == this);
-        public IEnumerable<SkillLinkUI> Necessary => links.Where(x => x.Node == this);
-        public IEnumerable<SkillLinkUI> NecessaryLearned => links.Where(x => x.Node == this && x.Necessary.IsLearned);
-        public IEnumerable<SkillLinkUI> NecessaryNotLearned => links.Where(x => x.Node == this && !x.Necessary.IsLearned);
+        public IEnumerable<SkillLinkUI> Links => links;
 
-        private readonly HashSet<SkillLinkUI> links = new();
+        private readonly List<SkillLinkUI> links = new();
         private Color defaultColor;
 
         void Awake()
@@ -42,14 +40,21 @@ namespace Assets.Scripts.UI
         void OnDisable() => button.onClick.RemoveListener(OnClick);
         void OnDestroy() => OnNodeSelect = null;
 
-        public void Set(SkillConfig skill)
+        public void Set(SkillConfig config)
         {
-            this.Config = skill;
-            this.name = skill.Name;
-            this.nameText.text = skill.Name;
+            this.config = config;
+            this.name = config.Name;
+            this.nameText.text = config.Name;
         }
 
-        public void AddLink(SkillLinkUI link) => links.Add(link);
+        public void AddLink(SkillLinkUI link)
+        {
+            if (!links.Contains(link))
+            {
+                links.Add(link);
+            }
+        }
+
         public void RemoveLink(SkillLinkUI link) => links.Remove(link);
 
         public void Learn()

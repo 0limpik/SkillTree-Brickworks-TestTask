@@ -8,22 +8,24 @@ namespace Assets.Scripts.UI
 {
     internal class SkinLearnUI : MonoBehaviour
     {
+        [Header("Setup")]
+        [SerializeField] private int startPoints;
+        [SerializeField] private int earnPoints;
+
         [Header("Links")]
         [SerializeField] private SkillInfoUI skillInfo;
+        [SerializeField] private SkillLinksSelector linksSelector;
 
         [SerializeField] private Button earn;
         [SerializeField] private Button learn;
         [SerializeField] private Button forget;
         [SerializeField] private Button forgetAll;
 
-        [Header("Setup")]
-        [SerializeField] private int startPoints;
-        [SerializeField] private int earnPoints;
+        private SkillSelector skillSelector;
+        private SkillLearnService skillLearn;
 
         private PlayerWalletService playerWallet;
-        private SkillLearnService skillLearn;
         private PlayerLearnService playerLearn;
-        private SkillSelector skillSelector;
 
         private SkillConfig SelectedConfig => skillSelector.Selected?.Config;
 
@@ -36,6 +38,7 @@ namespace Assets.Scripts.UI
             playerLearn = new PlayerLearnService(playerWallet, skillLearn, skillCost);
 
             skillInfo.Construct(skillSelector, skillCost, playerWallet);
+            linksSelector.Construct(skillSelector, skillLearn);
         }
 
         public void Subscribe()
@@ -43,7 +46,9 @@ namespace Assets.Scripts.UI
             skillSelector.OnSelect += Select;
             playerLearn.OnSkillChange += UpdateButtons;
             playerLearn.Subscribe();
+
             skillInfo.Subscribe();
+            linksSelector.Subscribe();
         }
 
         public void Unscribe()
@@ -51,7 +56,9 @@ namespace Assets.Scripts.UI
             skillSelector.OnSelect -= Select;
             playerLearn.OnSkillChange -= UpdateButtons;
             playerLearn.Unscribe();
+
             skillInfo.Unscribe();
+            linksSelector.Unscribe();
         }
 
         void OnEnable()

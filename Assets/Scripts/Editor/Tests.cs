@@ -69,6 +69,5 @@ namespace Assets.Scripts
                 Debug.Log($"{placer.StepNext()}");
             }
         }
-
     }
 }

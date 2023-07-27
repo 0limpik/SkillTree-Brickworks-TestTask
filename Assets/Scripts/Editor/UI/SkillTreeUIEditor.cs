@@ -10,12 +10,12 @@ namespace Assets.Scripts.UI
     [CustomEditor(typeof(SkillTreeUI))]
     internal class SkillTreeUIEditor : Editor
     {
+        private new SkillTreeUI target => base.target as SkillTreeUI;
+        private SkillTreeConfig selectedTreeConfig => treeConfigProperty.value as SkillTreeConfig;
+
         private ObjectField treeConfigProperty;
         private Button createButton;
         private Button clearButton;
-
-        private new SkillTreeUI target => base.target as SkillTreeUI;
-        private SkillTreeConfig selectedTreeConfig => treeConfigProperty.value as SkillTreeConfig;
 
         public override VisualElement CreateInspectorGUI()
         {

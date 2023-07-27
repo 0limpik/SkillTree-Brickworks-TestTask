@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81a9467a69e80f94d8fd74858d540833, type: 3}
   m_Name: 10
   m_EditorClassIdentifier: 
-  <Name>k__BackingField: Skill - 10
+  _name: 10
